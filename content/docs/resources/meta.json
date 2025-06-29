@@ -1,0 +1,9 @@
+{
+    "title": "Recursos",
+    "pages": [
+        "best-practices",
+        "glossary",
+        "faq"
+    ],
+    "defaultOpen": true
+}

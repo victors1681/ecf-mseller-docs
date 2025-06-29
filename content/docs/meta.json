@@ -4,7 +4,6 @@
         "index.mdx",
         "getting-started/registration",
         "integration",
-        "---My Separator---",
-        "./nested/page"
+        "resources"
     ]
 }

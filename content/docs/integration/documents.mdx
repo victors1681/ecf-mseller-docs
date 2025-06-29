@@ -33,12 +33,99 @@ Content-Type: application/json
 
 El cuerpo de la solicitud debe contener el documento en formato JSON estructurado según las especificaciones detalladas en [Formato de Documentos](/docs/integration/document-format).
 
-### Ejemplo de envío (cURL)
+### Documento JSON completo de ejemplo
 
+```json
+{
+  "ECF": {
+    "Encabezado": {
+      "Version": "1.0",
+      "IdDoc": {
+        "TipoeCF": "31",
+        "eNCF": "E310571508136",
+        "FechaVencimientoSecuencia": "31-12-2026",
+        "IndicadorEnvioDiferido": "1",
+        "IndicadorMontoGravado": "0",
+        "TipoIngresos": "05",
+        "TipoPago": "2",
+        "FechaLimitePago": "07-08-2026",
+        "TotalPaginas": 1
+      },
+      "Emisor": {
+        "RNCEmisor": "Tu RNC",
+        "RazonSocialEmisor": "Tu Negocio",
+        "DireccionEmisor": "DireccionEmisor1",
+        "FechaEmision": "29-06-2025"
+      },
+      "Comprador": {
+        "RNCComprador": "101023122",
+        "RazonSocialComprador": "Cliente Prueba SRL"
+      },
+      "Totales": {
+        "MontoGravadoTotal": 540.0,
+        "MontoGravadoI1": 540.0,
+        "MontoExento": 0,
+        "ITBIS1": 18,
+        "TotalITBIS": 97.2,
+        "TotalITBIS1": 97.2,
+        "MontoTotal": 637.2,
+        "MontoNoFacturable": 0
+      }
+    },
+    "DetallesItems": {
+      "Item": [
+        {
+          "NumeroLinea": "1",
+          "IndicadorFacturacion": "1",
+          "NombreItem": "Producto 1",
+          "IndicadorBienoServicio": "1",
+          "CantidadItem": 24,
+          "UnidadMedida": "43",
+          "PrecioUnitarioItem": 25.0,
+          "DescuentoMonto": 60.0,
+          "TablaSubDescuento": {
+            "SubDescuento": [
+              {
+                "TipoSubDescuento": "%",
+                "SubDescuentoPorcentaje": 10.0,
+                "MontoSubDescuento": 60.0
+              }
+            ]
+          },
+          "MontoItem": 540.0
+        }
+      ]
+    },
+    "Paginacion": {
+      "Pagina": [
+        {
+          "PaginaNo": 1,
+          "NoLineaDesde": 1,
+          "NoLineaHasta": 1,
+          "SubtotalMontoGravadoPagina": 540.0,
+          "SubtotalMontoGravado1Pagina": 540.0,
+          "SubtotalExentoPagina": 0,
+          "SubtotalItbisPagina": 97.2,
+          "SubtotalItbis1Pagina": 97.2,
+          "MontoSubtotalPagina": 637.2,
+          "SubtotalMontoNoFacturablePagina": 0
+        }
+      ]
+    },
+    "FechaHoraFirma": ""
+  }
+}
+```
+
+### Ejemplo de envío
+
+<Tabs items={["cURL", "JavaScript", "C#", "PHP"]}>
+<TabsContent value="cURL">
+ 
 ```bash
 curl -X POST \
   https://ecf.api.mseller.app/TesteCF/documentos-ecf \
-  -H 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...' \
+  -H 'Authorization: Bearer eyJraWQiOiJ1dE...' \
   -H 'X-API-KEY: tu_api_key' \
   -H 'Content-Type: application/json' \
   -d '{
@@ -48,13 +135,356 @@ curl -X POST \
         "IdDoc": {
           "TipoeCF": "31",
           "eNCF": "E310571508136",
-          "FechaVencimientoSecuencia": "31-12-2026"
+          "FechaVencimientoSecuencia": "31-12-2026",
+          "IndicadorEnvioDiferido": "1",
+          "IndicadorMontoGravado": "0",
+          "TipoIngresos": "05",
+          "TipoPago": "2",
+          "FechaLimitePago": "07-08-2026",
+          "TotalPaginas": 1
+        },
+        "Emisor": {
+          "RNCEmisor": "Tu RNC",
+          "RazonSocialEmisor": "Tu Negocio",
+          "DireccionEmisor": "DireccionEmisor1",
+          "FechaEmision": "29-06-2025"
+        },
+        "Comprador": {
+          "RNCComprador": "101023122",
+          "RazonSocialComprador": "Cliente Prueba SRL"
+        },
+        "Totales": {
+          "MontoGravadoTotal": 540.0,
+          "MontoGravadoI1": 540.0,
+          "MontoExento": 0,
+          "ITBIS1": 18,
+          "TotalITBIS": 97.2,
+          "TotalITBIS1": 97.2,
+          "MontoTotal": 637.2,
+          "MontoNoFacturable": 0
         }
-        // ... resto del documento
       }
     }
   }'
 ```
+
+</TabsContent>
+
+<TabsContent value="JavaScript">
+```javascript
+async function enviarDocumento() {
+  const documento = {
+    ECF: {
+      Encabezado: {
+        Version: "1.0",
+        IdDoc: {
+          TipoeCF: "31",
+          eNCF: "E310571508136",
+          FechaVencimientoSecuencia: "31-12-2026",
+          IndicadorEnvioDiferido: "1",
+          IndicadorMontoGravado: "0",
+          TipoIngresos: "05",
+          TipoPago: "2",
+          FechaLimitePago: "07-08-2026",
+          TotalPaginas: 1,
+        },
+        Emisor: {
+          RNCEmisor: "Tu RNC",
+          RazonSocialEmisor: "Tu Negocio",
+          DireccionEmisor: "DireccionEmisor1",
+          FechaEmision: "29-06-2025",
+        },
+        Comprador: {
+          RNCComprador: "101023122",
+          RazonSocialComprador: "Cliente Prueba SRL",
+        },
+        Totales: {
+          MontoGravadoTotal: 540.0,
+          MontoGravadoI1: 540.0,
+          MontoExento: 0,
+          ITBIS1: 18,
+          TotalITBIS: 97.2,
+          TotalITBIS1: 97.2,
+          MontoTotal: 637.2,
+          MontoNoFacturable: 0,
+        },
+      },
+      DetallesItems: {
+        Item: [
+          {
+            NumeroLinea: "1",
+            IndicadorFacturacion: "1",
+            NombreItem: "Producto 1",
+            IndicadorBienoServicio: "1",
+            CantidadItem: 24,
+            UnidadMedida: "43",
+            PrecioUnitarioItem: 25.0,
+            DescuentoMonto: 60.0,
+            TablaSubDescuento: {
+              SubDescuento: [
+                {
+                  TipoSubDescuento: "%",
+                  SubDescuentoPorcentaje: 10.0,
+                  MontoSubDescuento: 60.0,
+                },
+              ],
+            },
+            MontoItem: 540.0,
+          },
+        ],
+      },
+      Paginacion: {
+        Pagina: [
+          {
+            PaginaNo: 1,
+            NoLineaDesde: 1,
+            NoLineaHasta: 1,
+            SubtotalMontoGravadoPagina: 540.0,
+            SubtotalMontoGravado1Pagina: 540.0,
+            SubtotalExentoPagina: 0,
+            SubtotalItbisPagina: 97.2,
+            SubtotalItbis1Pagina: 97.2,
+            MontoSubtotalPagina: 637.2,
+            SubtotalMontoNoFacturablePagina: 0,
+          },
+        ],
+      },
+      FechaHoraFirma: "",
+    },
+  };
+
+const idToken = localStorage.getItem("idToken");
+
+try {
+const response = await fetch(
+"https://ecf.api.mseller.app/TesteCF/documentos-ecf",
+{
+method: "POST",
+headers: {
+Authorization: `Bearer ${idToken}`,
+"X-API-KEY": "tu_api_key",
+"Content-Type": "application/json",
+},
+body: JSON.stringify(documento),
+}
+);
+
+    const resultado = await response.json();
+    console.log("Documento enviado:", resultado);
+    return resultado;
+
+} catch (error) {
+console.error("Error al enviar documento:", error);
+throw error;
+}
+}
+
+````
+
+</TabsContent>
+
+<TabsContent value="C#">
+```csharp
+using System;
+using System.Net.Http;
+using System.Text;
+using System.Threading.Tasks;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+
+public class MSellercfClient
+{
+    private readonly HttpClient _client = new HttpClient();
+    private readonly string _idToken;
+    private readonly string _apiKey;
+
+    public MSellercfClient(string idToken, string apiKey)
+    {
+        _idToken = idToken;
+        _apiKey = apiKey;
+    }
+
+    public async Task<JObject> EnviarDocumento()
+    {
+        // Crear el objeto documento
+        var documento = new JObject();
+        var ecf = new JObject();
+
+        var encabezado = new JObject();
+        encabezado["Version"] = "1.0";
+
+        var idDoc = new JObject();
+        idDoc["TipoeCF"] = "31";
+        idDoc["eNCF"] = "E310571508136";
+        idDoc["FechaVencimientoSecuencia"] = "31-12-2026";
+        idDoc["IndicadorEnvioDiferido"] = "1";
+        idDoc["IndicadorMontoGravado"] = "0";
+        idDoc["TipoIngresos"] = "05";
+        idDoc["TipoPago"] = "2";
+        idDoc["FechaLimitePago"] = "07-08-2026";
+        idDoc["TotalPaginas"] = 1;
+
+        var emisor = new JObject();
+        emisor["RNCEmisor"] = "Tu RNC";
+        emisor["RazonSocialEmisor"] = "Tu Negocio";
+        emisor["DireccionEmisor"] = "DireccionEmisor1";
+        emisor["FechaEmision"] = "29-06-2025";
+
+        var comprador = new JObject();
+        comprador["RNCComprador"] = "101023122";
+        comprador["RazonSocialComprador"] = "Cliente Prueba SRL";
+
+        var totales = new JObject();
+        totales["MontoGravadoTotal"] = 540.0;
+        totales["MontoGravadoI1"] = 540.0;
+        totales["MontoExento"] = 0;
+        totales["ITBIS1"] = 18;
+        totales["TotalITBIS"] = 97.2;
+        totales["TotalITBIS1"] = 97.2;
+        totales["MontoTotal"] = 637.2;
+        totales["MontoNoFacturable"] = 0;
+
+        // Estructura completa del documento (ejemplo simplificado)
+        encabezado["IdDoc"] = idDoc;
+        encabezado["Emisor"] = emisor;
+        encabezado["Comprador"] = comprador;
+        encabezado["Totales"] = totales;
+
+        // Agregar más detalles conforme a la estructura completa
+        // ...
+
+        ecf["Encabezado"] = encabezado;
+        documento["ECF"] = ecf;
+
+        // Configurar la solicitud HTTP
+        _client.DefaultRequestHeaders.Clear();
+        _client.DefaultRequestHeaders.Add("Authorization", $"Bearer {_idToken}");
+        _client.DefaultRequestHeaders.Add("X-API-KEY", _apiKey);
+
+        var content = new StringContent(
+            documento.ToString(),
+            Encoding.UTF8,
+            "application/json");
+
+        var response = await _client.PostAsync(
+            "https://ecf.api.mseller.app/TesteCF/documentos-ecf",
+            content);
+
+        var responseJson = await response.Content.ReadAsStringAsync();
+        return JObject.Parse(responseJson);
+    }
+}
+````
+
+</TabsContent>
+
+<TabsContent value="PHP">
+```php
+<?php
+function enviarDocumento($idToken, $apiKey) {
+    $url = 'https://ecf.api.mseller.app/TesteCF/documentos-ecf';
+
+    // Documento en formato JSON
+    $documento = [
+        'ECF' => [
+            'Encabezado' => [
+                'Version' => '1.0',
+                'IdDoc' => [
+                    'TipoeCF' => '31',
+                    'eNCF' => 'E310571508136',
+                    'FechaVencimientoSecuencia' => '31-12-2026',
+                    'IndicadorEnvioDiferido' => '1',
+                    'IndicadorMontoGravado' => '0',
+                    'TipoIngresos' => '05',
+                    'TipoPago' => '2',
+                    'FechaLimitePago' => '07-08-2026',
+                    'TotalPaginas' => 1
+                ],
+                'Emisor' => [
+                    'RNCEmisor' => 'Tu RNC',
+                    'RazonSocialEmisor' => 'Tu Negocio',
+                    'DireccionEmisor' => 'DireccionEmisor1',
+                    'FechaEmision' => '29-06-2025'
+                ],
+                'Comprador' => [
+                    'RNCComprador' => '101023122',
+                    'RazonSocialComprador' => 'Cliente Prueba SRL'
+                ],
+                'Totales' => [
+                    'MontoGravadoTotal' => 540.0,
+                    'MontoGravadoI1' => 540.0,
+                    'MontoExento' => 0,
+                    'ITBIS1' => 18,
+                    'TotalITBIS' => 97.2,
+                    'TotalITBIS1' => 97.2,
+                    'MontoTotal' => 637.2,
+                    'MontoNoFacturable' => 0
+                ]
+            ],
+            'DetallesItems' => [
+                'Item' => [
+                    [
+                        'NumeroLinea' => '1',
+                        'IndicadorFacturacion' => '1',
+                        'NombreItem' => 'Producto 1',
+                        'IndicadorBienoServicio' => '1',
+                        'CantidadItem' => 24,
+                        'UnidadMedida' => '43',
+                        'PrecioUnitarioItem' => 25.0,
+                        'DescuentoMonto' => 60.0,
+                        'TablaSubDescuento' => [
+                            'SubDescuento' => [
+                                [
+                                    'TipoSubDescuento' => '%',
+                                    'SubDescuentoPorcentaje' => 10.0,
+                                    'MontoSubDescuento' => 60.0
+                                ]
+                            ]
+                        ],
+                        'MontoItem' => 540.0
+                    ]
+                ]
+            ]
+            // Agregar Paginación y otros elementos según necesidad
+        ]
+    ];
+
+    $options = [
+        'http' => [
+            'method' => 'POST',
+            'header' =>
+                "Authorization: Bearer " . $idToken . "\r\n" .
+                "X-API-KEY: " . $apiKey . "\r\n" .
+                "Content-Type: application/json\r\n",
+            'content' => json_encode($documento)
+        ]
+    ];
+
+    $context = stream_context_create($options);
+    $result = file_get_contents($url, false, $context);
+
+    if ($result === false) {
+        // Manejar error
+        return null;
+    }
+
+    return json_decode($result, true);
+
+}
+
+// Uso
+$idToken = $_SESSION['idToken']; // Obtenido del proceso de autenticación
+$apiKey = 'tu_api_key';
+$resultado = enviarDocumento($idToken, $apiKey);
+print_r($resultado);
+?>
+
+````
+
+</TabsContent>
+</Tabs>
+
+> **Nota:** En el ambiente de prueba debes buscar una secuencia aleatoria que no haya sido utilizada, debes tratar con diferentes secuencias
 
 ### Respuesta exitosa
 
@@ -67,7 +497,7 @@ curl -X POST \
   "qr_url": "https://ecf.dgii.gov.do/testecf/consultatimbre?rncemisor=102320705&RncComprador=101023122&encf=E310000009175&FechaEmision=14-05-2025&montototal=637.2&FechaFirma=14-05-2025%2002:57:33&codigoseguridad=fWCZCV",
   "signedDate": "14-05-2025 02:57:33"
 }
-```
+````
 
 ## Consulta de documentos
 
@@ -84,14 +514,127 @@ Authorization: Bearer {tu_token}
 X-API-KEY: {tu_api_key}
 ```
 
-### Ejemplo de consulta (cURL)
+<Tabs items={["cURL", "JavaScript", "C#", "PHP"]}>
+<TabsContent value="cURL">
+### Ejemplo de consulta
 
 ```bash
 curl -X GET \
   https://ecf.api.mseller.app/TestCF/documentos-ecf?ecf=E123456789 \
-  -H 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...' \
+  -H 'Authorization: Bearer eyJraWQiOiJ1dE...' \
   -H 'X-API-KEY: tu_api_key'
 ```
+
+</TabsContent>
+
+<TabsContent value="JavaScript">
+### Ejemplo de consulta
+
+```javascript
+async function consultarDocumento(ecf) {
+  const idToken = localStorage.getItem("idToken");
+
+  try {
+    const response = await fetch(
+      `https://ecf.api.mseller.app/TestCF/documentos-ecf?ecf=${ecf}`,
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${idToken}`,
+          "X-API-KEY": "tu_api_key",
+        },
+      }
+    );
+
+    const resultado = await response.json();
+    console.log("Estado del documento:", resultado);
+    return resultado;
+  } catch (error) {
+    console.error("Error al consultar documento:", error);
+    throw error;
+  }
+}
+```
+
+</TabsContent>
+
+<TabsContent value="C#">
+### Ejemplo de consulta
+
+```csharp
+using System;
+using System.Net.Http;
+using System.Threading.Tasks;
+using Newtonsoft.Json.Linq;
+
+public class MSellercfClient
+{
+    private readonly HttpClient _client = new HttpClient();
+    private readonly string _idToken;
+    private readonly string _apiKey;
+
+    public MSellercfClient(string idToken, string apiKey)
+    {
+        _idToken = idToken;
+        _apiKey = apiKey;
+    }
+
+    public async Task<JObject> ConsultarDocumento(string ecf)
+    {
+        _client.DefaultRequestHeaders.Clear();
+        _client.DefaultRequestHeaders.Add("Authorization", $"Bearer {_idToken}");
+        _client.DefaultRequestHeaders.Add("X-API-KEY", _apiKey);
+
+        var response = await _client.GetAsync(
+            $"https://ecf.api.mseller.app/TestCF/documentos-ecf?ecf={ecf}");
+
+        var responseJson = await response.Content.ReadAsStringAsync();
+        return JObject.Parse(responseJson);
+    }
+}
+```
+
+</TabsContent>
+
+<TabsContent value="PHP">
+### Ejemplo de consulta
+
+```php
+<?php
+function consultarDocumento($ecf, $idToken, $apiKey) {
+    $url = 'https://ecf.api.mseller.app/TestCF/documentos-ecf?ecf=' . urlencode($ecf);
+
+    $options = [
+        'http' => [
+            'method' => 'GET',
+            'header' =>
+                "Authorization: Bearer " . $idToken . "\r\n" .
+                "X-API-KEY: " . $apiKey . "\r\n"
+        ]
+    ];
+
+    $context = stream_context_create($options);
+    $result = file_get_contents($url, false, $context);
+
+    if ($result === false) {
+        // Manejar error
+        return null;
+    }
+
+    return json_decode($result, true);
+}
+
+// Uso
+$idToken = $_SESSION['idToken']; // Obtenido del proceso de autenticación
+$apiKey = 'tu_api_key';
+$ecf = 'E123456789';
+$resultado = consultarDocumento($ecf, $idToken, $apiKey);
+print_r($resultado);
+?>
+```
+
+</TabsContent>
+</Tabs>
 
 ### Respuesta exitosa
 
@@ -185,3 +728,78 @@ Es importante entender que MSeller ECF utiliza un procesamiento asíncrono para 
 5. **Consulta periódica**: Implementa consultas periódicas para actualizar el estado de los documentos enviados.
 6. **Tiempo de espera**: Programa consultas con un tiempo de espera adecuado entre el envío del documento y la consulta de su estado.
 7. **Gestión de códigos de seguridad**: Almacena y gestiona correctamente los códigos de seguridad y URLs de QR para la representación impresa de las facturas.
+
+## Recursos y herramientas para la adaptación de documentos
+
+Para asegurar que tu integración con MSeller ECF funcione correctamente, es fundamental comprender la estructura y los requisitos específicos de los documentos electrónicos. La Dirección General de Impuestos Internos (DGII) ofrece recursos oficiales que te ayudarán en este proceso.
+
+### Documentación y archivos XSD oficiales
+
+La DGII proporciona documentación detallada y archivos XSD (XML Schema Definition) que contienen la definición completa de la estructura de los documentos electrónicos. Estos recursos son esenciales para comprender los campos requeridos y las validaciones que se aplican a cada tipo de documento.
+
+ 
+
+#### Formatos XML
+
+| Archivo                                                                                                                                                                                                                                                     | Descripción                                                                                        | Última modificación | Tamaño  |
+| ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------- | ------------------- | ------- |
+| [Formato Comprobante Fiscal Electrónico (e-CF) V 1.0](<https://dgii.gov.do/cicloContribuyente/facturacion/comprobantesFiscalesElectronicosE-CF/Documentacin%20sobre%20eCF/Formatos%20XML/Formato%20Comprobante%20Fiscal%20Electrónico%20(e-CF)%20V1.0.pdf>) | Especificaciones para la elaboración de un e-CF                                                    | 18/09/2024          | 2,1MB   |
+| [Formato Acuse de Recibo v1.0](https://dgii.gov.do/cicloContribuyente/facturacion/comprobantesFiscalesElectronicosE-CF/Documentacin%20sobre%20eCF/Formatos%20XML/Formato%20Acuse%20de%20Recibo%20v%201.0.pdf)                                               | Especificaciones para recibir y dar constancia de recibo de un e-CF                                | 23/07/2020          | 193,2KB |
+| [Formato Aprobación Comercial V1.0](https://dgii.gov.do/cicloContribuyente/facturacion/comprobantesFiscalesElectronicosE-CF/Documentacin%20sobre%20eCF/Formatos%20XML/Formato%20Aprobación%20Comercial%20v1.0.pdf)                                          | Especificaciones para recibir y dar respuesta de la conformidad de un e-CF                         | 10/01/2020          | 212,2KB |
+| [Formato Anulación de e-CF V1.0](https://dgii.gov.do/cicloContribuyente/facturacion/comprobantesFiscalesElectronicosE-CF/Documentacin%20sobre%20eCF/Formatos%20XML/Formato%20Anulación%20de%20e-NCF%20v1.0.pdf)                                             | Especificaciones para la Anulación de un e-CF                                                      | 20/06/2022          | 494,4KB |
+| [Formato Resumen Factura Consumo Electrónico v1.0](https://dgii.gov.do/cicloContribuyente/facturacion/comprobantesFiscalesElectronicosE-CF/Documentacin%20sobre%20eCF/Formatos%20XML/Formato%20Resumen%20Factura%20Consumo%20Electrónica%20v1.0.pdf)        | Especificaciones para la remisión del resumen de factura de consumo electrónica menor a DOP250 mil | 19/08/2020          | 275KB   |
+
+#### Documentación Técnica (XSD)
+
+| Archivo                                                                                                                                                                                     | Descripción                                      | Última modificación | Tamaño  |
+| ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------ | ------------------- | ------- |
+| [e-CF 31 v.1.0](<https://dgii.gov.do/cicloContribuyente/facturacion/comprobantesFiscalesElectronicosE-CF/Documentacin%20sobre%20eCF/Documentación%20Técnica%20(XSD)/e-CF%2031%20v.1.0.xsd>) | Factura de Crédito Fiscal Electrónica            | 13/02/2025          | 120,1KB |
+| [e-CF 32 v.1.0](<https://dgii.gov.do/cicloContribuyente/facturacion/comprobantesFiscalesElectronicosE-CF/Documentacin%20sobre%20eCF/Documentación%20Técnica%20(XSD)/e-CF%2032%20v.1.0.xsd>) | Factura de Consumo Electrónica                   | 13/02/2025          | 120,1KB |
+| [e-CF 33 v.1.0](<https://dgii.gov.do/cicloContribuyente/facturacion/comprobantesFiscalesElectronicosE-CF/Documentacin%20sobre%20eCF/Documentación%20Técnica%20(XSD)/e-CF%2033%20v.1.0.xsd>) | Nota de Débito Electrónica                       | 13/02/2025          | 121,5KB |
+| [e-CF 34 v.1.0](<https://dgii.gov.do/cicloContribuyente/facturacion/comprobantesFiscalesElectronicosE-CF/Documentacin%20sobre%20eCF/Documentación%20Técnica%20(XSD)/e-CF%2034%20v.1.0.xsd>) | Nota de Crédito Electrónica                      | 13/02/2025          | 119,1KB |
+| [e-CF 41 v.1.0](<https://dgii.gov.do/cicloContribuyente/facturacion/comprobantesFiscalesElectronicosE-CF/Documentacin%20sobre%20eCF/Documentación%20Técnica%20(XSD)/e-CF%2041%20v.1.0.xsd>) | Comprobante de Compras Electrónico               | 13/02/2025          | 108,5KB |
+| [e-CF 43 v.1.0](<https://dgii.gov.do/cicloContribuyente/facturacion/comprobantesFiscalesElectronicosE-CF/Documentacin%20sobre%20eCF/Documentación%20Técnica%20(XSD)/e-CF%2043%20v.1.0.xsd>) | Comprobante de Gastos Menores Electrónico        | 13/02/2025          | 93,8KB  |
+| [e-CF 44 v.1.0](<https://dgii.gov.do/cicloContribuyente/facturacion/comprobantesFiscalesElectronicosE-CF/Documentacin%20sobre%20eCF/Documentación%20Técnica%20(XSD)/e-CF%2044%20v.1.0.xsd>) | Comprobante de Regímenes Especiales Electrónico  | 13/02/2025          | 111,6KB |
+| [e-CF 45 v.1.0](<https://dgii.gov.do/cicloContribuyente/facturacion/comprobantesFiscalesElectronicosE-CF/Documentacin%20sobre%20eCF/Documentación%20Técnica%20(XSD)/e-CF%2045%20v.1.0.xsd>) | Comprobante Gubernamental Electrónico            | 13/02/2025          | 118,9KB |
+| [e-CF 46 v.1.0](<https://dgii.gov.do/cicloContribuyente/facturacion/comprobantesFiscalesElectronicosE-CF/Documentacin%20sobre%20eCF/Documentación%20Técnica%20(XSD)/e-CF%2046%20v.1.0.xsd>) | Comprobante para Pagos al Exterior Electrónico   | 13/02/2025          | 113,2KB |
+| [e-CF 47 v.1.0](<https://dgii.gov.do/cicloContribuyente/facturacion/comprobantesFiscalesElectronicosE-CF/Documentacin%20sobre%20eCF/Documentación%20Técnica%20(XSD)/e-CF%2047%20v.1.0.xsd>) | Comprobante de Ingresos Electrónico              | 13/02/2025          | 98,9KB  |
+| [RFCE 32 v1.0](<https://dgii.gov.do/cicloContribuyente/facturacion/comprobantesFiscalesElectronicosE-CF/Documentacin%20sobre%20eCF/Documentación%20Técnica%20(XSD)/RFCE%2032%20v.1.0.xsd>)  | Representación Fiscal de Comprobante Electrónico | 20/06/2023          | 15KB    |
+| [ARECF v1.0](<https://dgii.gov.do/cicloContribuyente/facturacion/comprobantesFiscalesElectronicosE-CF/Documentacin%20sobre%20eCF/Documentación%20Técnica%20(XSD)/ARECF%20v1.0.xsd>)         | Acuse de Recibo de e-CF                          | 20/06/2023          | 2,8KB   |
+| [ANECF v.1.0](<https://dgii.gov.do/cicloContribuyente/facturacion/comprobantesFiscalesElectronicosE-CF/Documentacin%20sobre%20eCF/Documentación%20Técnica%20(XSD)/ANECF%20v.1.0.xsd>)       | Acuse Negativo de Recibo de e-CF                 | 20/06/2023          | 5KB     |
+| [ACECF v.1.0](<https://dgii.gov.do/cicloContribuyente/facturacion/comprobantesFiscalesElectronicosE-CF/Documentacin%20sobre%20eCF/Documentación%20Técnica%20(XSD)/ACECF%20v.1.0.xsd>)       | Acuse Comercial de e-CF                          | 21/12/2022          | 3,5KB   |
+| [Semilla v.1.0](<https://dgii.gov.do/cicloContribuyente/facturacion/comprobantesFiscalesElectronicosE-CF/Documentacin%20sobre%20eCF/Documentación%20Técnica%20(XSD)/Semilla%20v.1.0.xsd>)   | Definición de semilla para firma                 | 12/11/2020          | 487B    |
+
+> **Nota:** Los archivos XSD se pueden abrir con Visual Studio en Windows para visualizar la estructura completa de los esquemas XML.
+
+### Herramientas para validación y depuración
+
+Para facilitar la adaptación de tus sistemas a los requisitos de documentos electrónicos, puedes utilizar las siguientes herramientas:
+
+#### Convertidores y validadores online
+
+- **JSON a XML**: Para comprobar la conversión correcta entre el formato JSON que utilizas en las solicitudes y el formato XML que se utiliza internamente.
+
+  - [https://jsonformatter.org/xml-formatter](https://jsonformatter.org/xml-formatter)
+  - [https://www.freeformatter.com/json-to-xml-converter.html](https://www.freeformatter.com/json-to-xml-converter.html)
+
+- **Validadores XSD**: Para verificar que tus documentos XML cumplen con los esquemas definidos por la DGII.
+  - [https://www.freeformatter.com/xml-validator-xsd.html](https://www.freeformatter.com/xml-validator-xsd.html)
+  - [https://www.liquid-technologies.com/online-xsd-validator](https://www.liquid-technologies.com/online-xsd-validator)
+
+#### Simuladores de entorno
+
+MSeller ECF ofrece un ambiente de prueba (TesteCF) que te permite validar tus documentos antes de usarlos en producción. Este entorno simula completamente el proceso de envío y recepción de documentos electrónicos.
+
+Para usar el simulador:
+
+1. Envía tus documentos al endpoint `TesteCF` como se describe en la sección de [Envío de documentos](#envío-de-documentos)
+2. Utiliza secuencias de prueba para los eNCF (como se indica en la nota sobre secuencias aleatorias)
+3. Verifica las respuestas y corrija cualquier error antes de pasar a producción
+
+### Soporte y asesoría
+
+Si encuentras dificultades durante la implementación o adaptación de tus documentos, puedes recurrir a:
+
+- **Soporte técnico de MSeller**: A través del [portal de soporte](https://support.mseller.app)
+- **Documentación extendida**: Disponible en el [Centro de Ayuda de MSeller](https://help.mseller.app)
+- **Asesoría especializada**: MSeller ofrece servicios de consultoría para casos complejos de integración

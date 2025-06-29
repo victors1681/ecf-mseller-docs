@@ -55,9 +55,11 @@ Authorization: Bearer {tu_idToken}
 X-API-KEY: {tu_api_key}
 ```
 
-## Ejemplo completo de autenticación
+## Ejemplos completos de autenticación
 
-### Solicitud de autenticación (cURL)
+<Tabs items={["cURL", "JavaScript", "C#", "PHP"]}>
+<TabsContent value="cURL">
+### Solicitud de autenticación
 
 ```bash
 curl -X POST \
@@ -69,7 +71,7 @@ curl -X POST \
   }'
 ```
 
-### Solicitud a endpoints protegidos (cURL)
+### Solicitud a endpoints protegidos
 
 ```bash
 curl -X GET \
@@ -77,6 +79,187 @@ curl -X GET \
   -H 'Authorization: Bearer eyJraWQiOiJ1dE...' \
   -H 'X-API-KEY: tu_api_key'
 ```
+
+</TabsContent>
+
+<TabsContent value="JavaScript">
+### Solicitud de autenticación
+
+```javascript
+// Usando fetch
+async function authenticate() {
+  const response = await fetch(
+    "https://ecf.api.mseller.app/TestCF/customer/authentication",
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        email: "tu_email@ejemplo.com",
+        password: "tu_contraseña",
+      }),
+    }
+  );
+
+  const data = await response.json();
+  // Guardar tokens
+  localStorage.setItem("idToken", data.idToken);
+  return data;
+}
+```
+
+### Solicitud a endpoints protegidos
+
+```javascript
+async function getDocument(ecf) {
+  const idToken = localStorage.getItem("idToken");
+
+  const response = await fetch(
+    `https://ecf.api.mseller.app/TestCF/documentos-ecf?ecf=${ecf}`,
+    {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${idToken}`,
+        "X-API-KEY": "tu_api_key",
+      },
+    }
+  );
+
+  return await response.json();
+}
+```
+
+</TabsContent>
+
+<TabsContent value="C#">
+### Solicitud de autenticación
+
+```csharp
+using System;
+using System.Net.Http;
+using System.Text;
+using System.Threading.Tasks;
+using Newtonsoft.Json;
+
+public class MSellerAuthClient
+{
+    private readonly HttpClient _client = new HttpClient();
+    private string _idToken;
+
+    public async Task<AuthResponse> Authenticate(string email, string password)
+    {
+        var payload = new
+        {
+            email,
+            password
+        };
+
+        var content = new StringContent(
+            JsonConvert.SerializeObject(payload),
+            Encoding.UTF8,
+            "application/json");
+
+        var response = await _client.PostAsync(
+            "https://ecf.api.mseller.app/TestCF/customer/authentication",
+            content);
+
+        var responseJson = await response.Content.ReadAsStringAsync();
+        var authResponse = JsonConvert.DeserializeObject<AuthResponse>(responseJson);
+
+        _idToken = authResponse.IdToken;
+        return authResponse;
+    }
+
+    public async Task<string> GetDocument(string ecf)
+    {
+        _client.DefaultRequestHeaders.Clear();
+        _client.DefaultRequestHeaders.Add("Authorization", $"Bearer {_idToken}");
+        _client.DefaultRequestHeaders.Add("X-API-KEY", "tu_api_key");
+
+        var response = await _client.GetAsync(
+            $"https://ecf.api.mseller.app/TestCF/documentos-ecf?ecf={ecf}");
+
+        return await response.Content.ReadAsStringAsync();
+    }
+}
+
+public class AuthResponse
+{
+    public string AccessToken { get; set; }
+    public string IdToken { get; set; }
+    public string RefreshToken { get; set; }
+}
+```
+
+</TabsContent>
+
+<TabsContent value="PHP">
+### Solicitud de autenticación
+
+```php
+<?php
+function authenticate() {
+    $url = 'https://ecf.api.mseller.app/TestCF/customer/authentication';
+    $data = [
+        'email' => 'tu_email@ejemplo.com',
+        'password' => 'tu_contraseña'
+    ];
+
+    $options = [
+        'http' => [
+            'method' => 'POST',
+            'header' => 'Content-Type: application/json',
+            'content' => json_encode($data)
+        ]
+    ];
+
+    $context = stream_context_create($options);
+    $result = file_get_contents($url, false, $context);
+
+    if ($result === false) {
+        return null;
+    }
+
+    return json_decode($result, true);
+}
+
+// Guardar token en sesión
+$auth = authenticate();
+$_SESSION['idToken'] = $auth['idToken'];
+?>
+```
+
+### Solicitud a endpoints protegidos
+
+```php
+<?php
+function getDocument($ecf) {
+    $url = 'https://ecf.api.mseller.app/TestCF/documentos-ecf?ecf=' . urlencode($ecf);
+
+    $options = [
+        'http' => [
+            'method' => 'GET',
+            'header' =>
+                "Authorization: Bearer " . $_SESSION['idToken'] . "\r\n" .
+                "X-API-KEY: tu_api_key\r\n"
+        ]
+    ];
+
+    $context = stream_context_create($options);
+    $result = file_get_contents($url, false, $context);
+
+    if ($result === false) {
+        return null;
+    }
+
+    return json_decode($result, true);
+}
+?>
+```
+
+</TabsContent>
+</Tabs>
 
 ## Manejo de errores de autenticación
 
