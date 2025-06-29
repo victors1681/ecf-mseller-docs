@@ -36,24 +36,22 @@ Donde `{entorno}` puede ser:
 
 ```json
 {
-  "success": true,
-  "data": {
-    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-    "expiresIn": "3600"
-  }
+  "accessToken": "eyJraWQiOiJM...",
+  "idToken": "eyJraWQiOiJ1dE...",
+  "refreshToken": "eyJjdHkiOiJKV1QiL..."
 }
 ```
 
-> **Importante**: El token tiene una validez de una hora (3600 segundos). Después de este tiempo, deberás solicitar un nuevo token.
+> **Importante**: Utilice el `idToken` en las solicitudes posteriores. Los tokens tienen una validez limitada. Después de este tiempo, deberás solicitar un nuevo token o utilizar el refreshToken.
 
 ### 2. Usar el token en las solicitudes
 
-Una vez obtenido el token, debes incluirlo en todas las solicitudes subsecuentes junto con tu API Key:
+Una vez obtenido el token, debes incluir el `idToken` en todas las solicitudes subsecuentes junto con tu API Key:
 
 #### Encabezados requeridos
 
 ```
-Authorization: Bearer {tu_token}
+Authorization: Bearer {tu_idToken}
 X-API-KEY: {tu_api_key}
 ```
 
@@ -76,7 +74,7 @@ curl -X POST \
 ```bash
 curl -X GET \
   https://ecf.api.mseller.app/TestCF/documentos-ecf?ecf=E123456789 \
-  -H 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...' \
+  -H 'Authorization: Bearer eyJraWQiOiJ1dE...' \
   -H 'X-API-KEY: tu_api_key'
 ```
 
