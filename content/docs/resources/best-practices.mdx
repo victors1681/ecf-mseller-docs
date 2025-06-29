@@ -1,0 +1,97 @@
+---
+title: Mejores Prácticas
+description: Recomendaciones para una integración eficiente con MSeller ECF
+---
+
+# Mejores Prácticas
+
+Implementar correctamente la facturación electrónica con MSeller ECF puede simplificar tu operación y garantizar el cumplimiento normativo. Aquí te presentamos algunas recomendaciones para optimizar tu integración.
+
+## Arquitectura y Diseño
+
+### Separación de responsabilidades
+
+Recomendamos separar claramente las responsabilidades en tu implementación:
+
+1. **Generación de documentos**: Tu sistema debe encargarse de generar los datos necesarios para la factura.
+2. **Transformación a XML**: Implementa una capa de transformación que convierta tus datos al formato XML requerido.
+3. **Comunicación con MSeller ECF**: Implementa un servicio dedicado para la comunicación con nuestra API.
+4. **Almacenamiento y seguimiento**: Mantén un registro local de los documentos enviados y su estado.
+
+### Manejo de errores
+
+Diseña tu sistema para manejar adecuadamente los diferentes tipos de errores que pueden ocurrir:
+
+- Errores de validación de datos
+- Errores de comunicación
+- Errores de procesamiento
+- Rechazos por parte de la DGII
+
+## Implementación Técnica
+
+### Autenticación
+
+- Almacena tus credenciales de forma segura, nunca en código fuente.
+- Implementa un mecanismo para refrescar el token automáticamente antes de que expire.
+- Utiliza variables de entorno o sistemas seguros de gestión de secretos.
+
+### Generación de documentos
+
+- Valida localmente los documentos antes de enviarlos para reducir rechazos.
+- Implementa pruebas unitarias para verificar la correcta generación de los documentos XML.
+- Considera utilizar bibliotecas especializadas para la generación y validación de XML.
+
+### Envío de documentos
+
+- Implementa un sistema de cola para el envío de documentos, especialmente para volúmenes altos.
+- Establece una estrategia de reintentos con backoff exponencial para manejar fallos temporales.
+- Limita la tasa de envío de documentos según los límites de tu plan contratado.
+
+### Seguimiento y estado
+
+- Implementa un proceso periódico para actualizar el estado de los documentos enviados.
+- Notifica oportunamente a los usuarios sobre rechazos o problemas con los documentos.
+- Mantén un registro histórico de todos los eventos relacionados con cada documento.
+
+## Operación y Mantenimiento
+
+### Monitoreo
+
+Establece un sistema de monitoreo para:
+
+- Tasa de éxito/rechazo de documentos
+- Tiempo de procesamiento
+- Disponibilidad de la plataforma
+- Uso de cuota de API
+
+### Respaldos
+
+- Realiza respaldos periódicos de tus certificados digitales.
+- Mantén copias de seguridad de todos los documentos enviados y recibidos.
+- Documenta adecuadamente tu implementación para facilitar el mantenimiento.
+
+### Actualizaciones
+
+- Mantente informado sobre cambios en las regulaciones de la DGII.
+- Actualiza regularmente tu integración para aprovechar nuevas funcionalidades.
+- Implementa un entorno de pruebas para verificar cambios antes de aplicarlos en producción.
+
+## Seguridad
+
+### Protección de certificados
+
+- Almacena tus certificados digitales en un sistema seguro y con acceso restringido.
+- Implementa un proceso para la renovación oportuna de certificados antes de su expiración.
+- Considera el uso de módulos de seguridad de hardware (HSM) para operaciones críticas.
+
+### Control de acceso
+
+- Implementa un sistema de roles y permisos para el acceso a funcionalidades relacionadas con facturación.
+- Registra todas las acciones realizadas por los usuarios relacionadas con documentos fiscales.
+- Utiliza conexiones seguras (HTTPS) para todas las comunicaciones.
+
+## Plan de contingencia
+
+- Implementa un mecanismo para operar en modo offline cuando la plataforma no esté disponible.
+- Establece procedimientos claros para la sincronización posterior cuando se restablezca el servicio.
+- Realiza pruebas periódicas de tu plan de contingencia para asegurar su efectividad.

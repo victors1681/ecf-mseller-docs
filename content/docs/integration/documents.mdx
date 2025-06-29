@@ -1,0 +1,187 @@
+---
+title: Envío y Consulta de Documentos
+description: Cómo enviar y consultar documentos electrónicos en MSeller ECF
+---
+
+# Envío y Consulta de Documentos
+
+Esta sección explica cómo enviar y consultar documentos electrónicos utilizando la API de MSeller ECF.
+
+## Envío de documentos
+
+Para enviar un documento electrónico a la plataforma, debes realizar una solicitud POST al endpoint correspondiente:
+
+```
+POST /{entorno}/documentos-ecf
+```
+
+Donde `{entorno}` puede ser:
+
+- `TestCF` (para pruebas)
+- `CertCF` (para certificación)
+- `eCF` (para producción)
+
+### Encabezados requeridos
+
+```
+Authorization: Bearer {tu_token}
+X-API-KEY: {tu_api_key}
+Content-Type: application/json
+```
+
+### Cuerpo de la solicitud
+
+El cuerpo de la solicitud debe contener el documento en formato JSON estructurado según las especificaciones detalladas en [Formato de Documentos](/docs/integration/document-format).
+
+### Ejemplo de envío (cURL)
+
+```bash
+curl -X POST \
+  https://ecf.api.mseller.app/TesteCF/documentos-ecf \
+  -H 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...' \
+  -H 'X-API-KEY: tu_api_key' \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "ECF": {
+      "Encabezado": {
+        "Version": "1.0",
+        "IdDoc": {
+          "TipoeCF": "31",
+          "eNCF": "E310571508136",
+          "FechaVencimientoSecuencia": "31-12-2026"
+        }
+        // ... resto del documento
+      }
+    }
+  }'
+```
+
+### Respuesta exitosa
+
+```json
+{
+  "rnc": "102320705",
+  "ecf": "E310000009175",
+  "internalTrackId": "58f1bdd7-f4be-4a2e-a1e6-570c95b8d477",
+  "securityCode": "fWCZCV",
+  "qr_url": "https://ecf.dgii.gov.do/testecf/consultatimbre?rncemisor=102320705&RncComprador=101023122&encf=E310000009175&FechaEmision=14-05-2025&montototal=637.2&FechaFirma=14-05-2025%2002:57:33&codigoseguridad=fWCZCV",
+  "signedDate": "14-05-2025 02:57:33"
+}
+```
+
+## Consulta de documentos
+
+Para consultar el estado de un documento enviado previamente, debes realizar una solicitud GET al endpoint de consulta:
+
+```
+GET /{entorno}/documentos-ecf?ecf={No. comprobante electrónico}
+```
+
+### Encabezados requeridos
+
+```
+Authorization: Bearer {tu_token}
+X-API-KEY: {tu_api_key}
+```
+
+### Ejemplo de consulta (cURL)
+
+```bash
+curl -X GET \
+  https://ecf.api.mseller.app/TestCF/documentos-ecf?ecf=E123456789 \
+  -H 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...' \
+  -H 'X-API-KEY: tu_api_key'
+```
+
+### Respuesta exitosa
+
+```json
+{
+  "fileName": "102320705E310000009179.xml",
+  "updateAt": 1747250783965,
+  "customerReceivedAt": "14-05-2025 15:26:21",
+  "documentType": "Factura de Crédito Fiscal Electrónico",
+  "customerResponse": "{\"_declaration\":{\"_attributes\":{\"version\":\"1.0\",\"encoding\":\"utf-8\"}},\"ARECF\":{...}}",
+  "status": "Aceptado",
+  "dgiiResponse": [
+    "{\"trackId\":\"0cc42712-4a99-48be-b66d-346b33e36d7f\",\"error\":null,\"mensaje\":null}",
+    "{\"trackId\":\"0cc42712-4a99-48be-b66d-346b33e36d7f\",\"codigo\":\"1\",\"estado\":\"Aceptado\",\"rnc\":\"102320705\",\"encf\":\"E310000009179\",\"secuenciaUtilizada\":true,\"fechaRecepcion\":\"5/14/2025 3:26:21 PM\",\"mensajes\":[{\"valor\":\"\",\"codigo\":0}]}"
+  ],
+  "createdAt": 1747250778433,
+  "securityCode": "hhABiM",
+  "signedXml": "102320705/documents/TesteCF/102320705E310000009179.xml",
+  "ncf": "E310000009179",
+  "internalTrackId": "a118ea44-ac12-466a-b071-c4b650bb5a4f",
+  "customerReceived": "0",
+  "qr_url": "https://ecf.dgii.gov.do/testecf/consultatimbre?rncemisor=102320705&RncComprador=101023122&encf=E310000009179&FechaEmision=14-05-2025&montototal=637.2&FechaFirma=14-05-2025%2003:26:18&codigoseguridad=hhABiM",
+  "customerId": "102320705"
+}
+```
+
+### Campos de la respuesta de consulta
+
+| Campo              | Descripción                                                         |
+| ------------------ | ------------------------------------------------------------------- |
+| fileName           | Nombre del archivo XML generado                                     |
+| updateAt           | Timestamp de la última actualización                                |
+| customerReceivedAt | Fecha y hora en que el cliente recibió el documento                 |
+| documentType       | Tipo de documento (ej: "Factura de Crédito Fiscal Electrónico")     |
+| customerResponse   | Respuesta completa en formato XML (transformada a JSON para la API) |
+| status             | Estado del documento ("Aceptado", "Rechazado", etc.)                |
+| dgiiResponse       | Respuestas recibidas de la DGII                                     |
+| createdAt          | Timestamp de creación del documento                                 |
+| securityCode       | Código de seguridad para la representación impresa                  |
+| signedXml          | Ruta al documento XML firmado                                       |
+| ncf                | Número de Comprobante Fiscal                                        |
+| internalTrackId    | ID de seguimiento interno                                           |
+| customerReceived   | Indicador de recepción por el cliente                               |
+| qr_url             | URL del código QR para consulta                                     |
+| customerId         | ID del cliente (RNC)                                                |
+
+## Estados de los documentos
+
+Los documentos enviados a la plataforma pueden tener los siguientes estados:
+
+| Estado     | Descripción                                                          |
+| ---------- | -------------------------------------------------------------------- |
+| RECIBIDO   | El documento ha sido recibido pero aún no ha sido procesado          |
+| PROCESANDO | El documento está siendo procesado y validado                        |
+| ACEPTADO   | El documento ha sido validado y aceptado correctamente               |
+| RECHAZADO  | El documento ha sido rechazado por errores en su formato o contenido |
+| ERROR      | Ha ocurrido un error durante el procesamiento del documento          |
+
+## Flujo de procesamiento asíncrono
+
+Es importante entender que MSeller ECF utiliza un procesamiento asíncrono para optimizar el rendimiento y manejar grandes volúmenes de documentos. El proceso completo incluye:
+
+1. **Recepción del documento JSON** - MSeller recibe el documento
+2. **Transformación a XML** - Conversión automática al formato requerido por la DGII
+3. **Aplicación de firma electrónica** - Utilizando tu certificado digital
+4. **Almacenamiento del documento XML** - Guardado seguro de la versión firmada
+5. **Respuesta inmediata** - Devolución de códigos de seguridad y enlace QR
+6. **Procesamiento en cola** - El documento se coloca en cola para envío a la DGII
+7. **Actualización de estado** - El estado del documento se actualiza tras la respuesta de la DGII
+
+**IMPORTANTE**: Debido a este proceso asíncrono, debes esperar unos segundos antes de consultar el estado final del documento para verificar si fue aceptado o rechazado por la DGII.
+
+## Manejo de errores
+
+### Errores comunes en el envío
+
+| Código HTTP | Descripción                    | Solución                                               |
+| ----------- | ------------------------------ | ------------------------------------------------------ |
+| 400         | JSON mal formateado            | Verifica que el JSON cumpla con la estructura definida |
+| 401         | Error de autenticación         | Verifica tu token de acceso                            |
+| 403         | API Key inválida               | Verifica tu API Key                                    |
+| 429         | Límite de solicitudes excedido | Reduce la frecuencia de solicitudes según tu plan      |
+| 500         | Error del servidor             | Contacta al soporte técnico                            |
+
+## Buenas prácticas
+
+1. **Validación previa**: Valida los documentos JSON antes de enviarlos para evitar rechazos.
+2. **Manejo de errores**: Implementa un sistema robusto para manejar los diferentes tipos de errores.
+3. **Reintentos**: Implementa una estrategia de reintentos para casos de fallos temporales.
+4. **Almacenamiento local**: Mantén una copia local de los documentos enviados para referencia futura.
+5. **Consulta periódica**: Implementa consultas periódicas para actualizar el estado de los documentos enviados.
+6. **Tiempo de espera**: Programa consultas con un tiempo de espera adecuado entre el envío del documento y la consulta de su estado.
+7. **Gestión de códigos de seguridad**: Almacena y gestiona correctamente los códigos de seguridad y URLs de QR para la representación impresa de las facturas.

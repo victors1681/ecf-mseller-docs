@@ -1,0 +1,93 @@
+---
+title: Vista General de Integración
+description: Descripción general del proceso de integración con MSeller ECF
+---
+
+# Integración con MSeller ECF
+
+Esta sección explica el proceso técnico para integrar tu sistema con la plataforma MSeller ECF para facturación electrónica.
+
+## Flujo de integración
+
+La integración con MSeller ECF sigue un flujo de trabajo simple:
+
+1. **Autenticación** - Obtener un token de acceso
+2. **Generación de documentos XML** - Crear documentos según el formato requerido
+3. **Envío de documentos** - Enviar los documentos a la plataforma
+4. **Consulta y seguimiento** - Verificar el estado de los documentos enviados
+
+## Entornos disponibles
+
+MSeller ECF ofrece tres entornos para facilitar el desarrollo e implementación:
+
+| Entorno | URL Base                           | Propósito                         |
+| ------- | ---------------------------------- | --------------------------------- |
+| TestCF  | https://ecf.api.mseller.app/TestCF | Pruebas iniciales y desarrollo    |
+| CertCF  | https://ecf.api.mseller.app/CertCF | Proceso de certificación con DGII |
+| eCF     | https://ecf.api.mseller.app/eCF    | Producción (facturación oficial)  |
+
+## Requisitos técnicos
+
+Para una integración exitosa, necesitarás:
+
+- Credenciales de usuario (email y contraseña)
+- API Key generada para el entorno correspondiente
+- Certificado digital válido cargado en la plataforma
+- Capacidad para generar documentos en formato XML según las especificaciones de DGII
+
+## Flujo de Procesamiento
+
+<Mermaid
+  chart="
+flowchart TD;
+    %% Definición de nodos
+    subgraph DGII
+        I[Recibe documento]
+        G[Procesa documento]
+    end
+    
+    subgraph MSeller
+        B[Recibe JSON]
+        C[Transformación a XML]
+        D[Aplicación de firma electrónica]
+        E[Almacenamiento XML]
+        F[Generación de códigos de seguridad]
+        H[Envío asíncrono a DGII]
+        K[Enviar el documento al comprador electrónicamente si está disponible]
+        L[Actualiza estado del documento]
+    end
+
+        subgraph Cliente
+        A[Cliente envía JSON]
+        J[Recibe respuesta inmediata]
+        M[Consulta estado del documento]
+    end
+    %% Conexiones
+    A --> B;
+    B --> C;
+    C --> D;
+    D --> E;
+    E --> F;
+    F --> J;
+    F --> H;
+    H --> I;
+    I --> G;
+    G --> K;
+    K --> L;
+    L --> M;
+
+"
+/>
+
+## Siguientes pasos
+
+Continúa con las siguientes secciones para detalles específicos sobre cada paso del proceso de integración:
+
+<Cards>
+  <Card title="Autenticación" href="/docs/api/authentication" />
+  <Card
+    title="Formato de Documentos"
+    href="/docs/integration/document-format"
+  />
+  <Card title="Envío de Documentos" href="/docs/api/documents" />
+</Cards>

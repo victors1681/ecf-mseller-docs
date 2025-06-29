@@ -1,0 +1,60 @@
+---
+title: Registro e Inicio
+description: Cómo registrarse y comenzar con MSeller ECF
+---
+
+# Registro e Inicio
+
+Para comenzar a utilizar la plataforma de facturación electrónica MSeller ECF, sigue estos pasos:
+
+## 1. Creación de cuenta
+
+El primer paso para integrar tu sistema con MSeller ECF es crear una cuenta:
+
+1. Visita [https://ecf.mseller.app/register](https://ecf.mseller.app/register)
+2. Completa el formulario con la información requerida
+3. Confirma tu dirección de correo electrónico
+
+> **Importante**: La información de email y contraseña que utilices durante el registro serán tus credenciales para:
+>
+> - Iniciar sesión en el portal [https://ecf.mseller.app/login](https://ecf.mseller.app/login)
+> - Autenticarte en las APIs de integración
+
+## 2. Acceder al portal
+
+Una vez completado el registro:
+
+1. Inicia sesión en [https://ecf.mseller.app/login](https://ecf.mseller.app/login)
+2. Explora el panel de control para familiarizarte con las funciones disponibles
+
+## 3. Crear una API Key
+
+Para integrar programáticamente con la plataforma, necesitas crear una API Key:
+
+1. Navega a [https://ecf.mseller.app/api-keys/list](https://ecf.mseller.app/api-keys/list)
+2. Haz clic en "Crear nueva API Key"
+3. Selecciona el entorno apropiado:
+   - **TestCF**: Para pruebas iniciales
+   - **CertCF**: Para el proceso de certificación
+   - **eCF**: Para producción
+
+> **Nota**: La cantidad de requests por segundo que puedes hacer depende del plan que hayas contratado (Gratis, Estándar o Empresarial).
+
+## 4. Cargar certificado digital
+
+Es indispensable cargar el certificado digital que será utilizado para firmar los documentos XML:
+
+1. Navega a [https://ecf.mseller.app/certificate/add](https://ecf.mseller.app/certificate/add)
+2. Sigue las instrucciones para cargar tu certificado digital
+
+Si aún no cuentas con un certificado digital, puedes obtenerlo en línea a través de la [Cámara de Comercio de Santo Domingo](https://www.camarasantodomingo.do/solicitudes/FormularioWeb/?AspxAutoDetectCookieSupport=1).
+
+## Requisitos previos para obtener el certificado
+
+Para poder obtener el certificado digital y comenzar el proceso de certificación, la empresa debe cumplir con los requisitos establecidos por la DGII (Dirección General de Impuestos Internos).
+
+Para más información, consulta el [Proceso de Certificación para ser Emisor Electrónico](https://dgii.gov.do/cicloContribuyente/facturacion/comprobantesFiscalesElectronicosE-CF/Documentacin%20sobre%20eCF/Documentaciones%20Proceso%20de%20Certificaci%C3%B3n%20FE/Proceso%20de%20Certificacio%CC%81n%20para%20ser%20Emisor%20Electro%CC%81nico.pdf).
+
+## Siguiente paso
+
+Una vez completados estos pasos, estás listo para comenzar la [integración técnica](/docs/integration/overview) con tu sistema.

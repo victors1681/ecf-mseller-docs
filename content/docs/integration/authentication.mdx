@@ -1,0 +1,97 @@
+---
+title: Autenticación API
+description: Proceso de autenticación para usar la API de MSeller ECF
+---
+
+# Autenticación API
+
+Para interactuar con la API de MSeller ECF, es necesario implementar un proceso de autenticación que combina credenciales de usuario y una API Key. Este proceso te proporcionará un token de acceso que deberás utilizar en cada solicitud posterior.
+
+## Proceso de autenticación
+
+### 1. Obtener un token de acceso
+
+Para obtener un token de acceso, debes enviar una solicitud POST al endpoint de autenticación:
+
+```
+POST /{entorno}/customer/authentication
+```
+
+Donde `{entorno}` puede ser:
+
+- `TestCF` (para pruebas)
+- `CertCF` (para certificación)
+- `eCF` (para producción)
+
+#### Ejemplo de solicitud
+
+```json
+{
+  "email": "tu_email@ejemplo.com",
+  "password": "tu_contraseña"
+}
+```
+
+#### Ejemplo de respuesta exitosa
+
+```json
+{
+  "success": true,
+  "data": {
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+    "expiresIn": "3600"
+  }
+}
+```
+
+> **Importante**: El token tiene una validez de una hora (3600 segundos). Después de este tiempo, deberás solicitar un nuevo token.
+
+### 2. Usar el token en las solicitudes
+
+Una vez obtenido el token, debes incluirlo en todas las solicitudes subsecuentes junto con tu API Key:
+
+#### Encabezados requeridos
+
+```
+Authorization: Bearer {tu_token}
+X-API-KEY: {tu_api_key}
+```
+
+## Ejemplo completo de autenticación
+
+### Solicitud de autenticación (cURL)
+
+```bash
+curl -X POST \
+  https://ecf.api.mseller.app/TestCF/customer/authentication \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "email": "tu_email@ejemplo.com",
+    "password": "tu_contraseña"
+  }'
+```
+
+### Solicitud a endpoints protegidos (cURL)
+
+```bash
+curl -X GET \
+  https://ecf.api.mseller.app/TestCF/documentos-ecf?ecf=E123456789 \
+  -H 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...' \
+  -H 'X-API-KEY: tu_api_key'
+```
+
+## Manejo de errores de autenticación
+
+| Código HTTP | Descripción            | Solución                                                   |
+| ----------- | ---------------------- | ---------------------------------------------------------- |
+| 401         | Credenciales inválidas | Verifica que el email y contraseña sean correctos          |
+| 401         | Token expirado         | Solicita un nuevo token de acceso                          |
+| 403         | API Key inválida       | Verifica que la API Key sea correcta y esté activa         |
+| 403         | Permisos insuficientes | Contacta al soporte para revisar los permisos de tu cuenta |
+
+## Buenas prácticas
+
+1. **Almacenamiento seguro**: No almacenes las credenciales en código fuente ni en repositorios públicos.
+2. **Refresco de token**: Implementa un mecanismo para refrescar el token antes de que expire.
+3. **Manejo de errores**: Implementa un manejo robusto de errores de autenticación en tu aplicación.
+4. **Rate limiting**: Respeta los límites de solicitudes por segundo según tu plan contratado.

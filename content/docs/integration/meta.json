@@ -1,0 +1,10 @@
+{
+    "title": "Integración",
+    "pages": [
+        "overview",
+        "authentication",
+        "document-format",
+        "documents"
+    ],
+    "defaultOpen": true
+}

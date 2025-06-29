@@ -1,0 +1,10 @@
+{
+    "title": "Name of Folder",
+    "pages": [
+        "index.mdx",
+        "getting-started/registration",
+        "integration",
+        "---My Separator---",
+        "./nested/page"
+    ]
+}
