@@ -1,6 +1,7 @@
 {
-    "title": "Name of Folder",
+    "title": "DOcumentación MSeller ECF",
     "pages": [
+        "---Documentación---",
         "index.mdx",
         "getting-started/registration",
         "integration",

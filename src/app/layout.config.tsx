@@ -26,14 +26,21 @@ export const baseOptions: BaseLayoutProps = {
   },
   // see https://fumadocs.dev/docs/ui/navigation/links
   links: [
-    { label: "Portal", href: "https://ecf.mseller.app" },
-    { label: "Registro", href: "https://ecf.mseller.app/register" },
-    { label: "Iniciar Sesión", href: "https://ecf.mseller.app/login" },
+    { text: "Portal MSeller", url: "https://ecf.mseller.app" },
+    { text: "Registro", url: "https://ecf.mseller.app/register" },
+    { text: "Iniciar Sesión", url: "https://ecf.mseller.app/login" },
   ],
   // For SEO and OpenGraph
-  github: "https://github.com/mseller",
-  project: { name: "ECF MSeller" },
-  footer: {
-    text: `© ${new Date().getFullYear()} MSeller. Todos los derechos reservados.`,
+  githubUrl: "https://github.com/victors1681/dgii-ecf",
+  i18n: false,
+  themeSwitch: {
+    enabled: true,
+    mode: "light-dark-system",
+  },
+  searchToggle: {
+    enabled: true,
+    components: {
+      sm: "🔍",
+    },
   },
 };
