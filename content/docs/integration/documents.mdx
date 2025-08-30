@@ -17,7 +17,7 @@ POST /{entorno}/documentos-ecf
 
 Donde `{entorno}` puede ser:
 
-- `TestCF` (para pruebas)
+- `TesteCF` (para pruebas)
 - `CertCF` (para certificación)
 - `eCF` (para producción)
 
@@ -520,7 +520,7 @@ X-API-KEY: {tu_api_key}
 
 ```bash
 curl -X GET \
-  https://ecf.api.mseller.app/TestCF/documentos-ecf?ecf=E123456789 \
+  https://ecf.api.mseller.app/TesteCF/documentos-ecf?ecf=E123456789 \
   -H 'Authorization: Bearer eyJraWQiOiJ1dE...' \
   -H 'X-API-KEY: tu_api_key'
 ```
@@ -536,7 +536,7 @@ async function consultarDocumento(ecf) {
 
   try {
     const response = await fetch(
-      `https://ecf.api.mseller.app/TestCF/documentos-ecf?ecf=${ecf}`,
+      `https://ecf.api.mseller.app/TesteCF/documentos-ecf?ecf=${ecf}`,
       {
         method: "GET",
         headers: {
@@ -586,7 +586,7 @@ public class MSellercfClient
         _client.DefaultRequestHeaders.Add("X-API-KEY", _apiKey);
 
         var response = await _client.GetAsync(
-            $"https://ecf.api.mseller.app/TestCF/documentos-ecf?ecf={ecf}");
+            $"https://ecf.api.mseller.app/TesteCF/documentos-ecf?ecf={ecf}");
 
         var responseJson = await response.Content.ReadAsStringAsync();
         return JObject.Parse(responseJson);
@@ -602,7 +602,7 @@ public class MSellercfClient
 ```php
 <?php
 function consultarDocumento($ecf, $idToken, $apiKey) {
-    $url = 'https://ecf.api.mseller.app/TestCF/documentos-ecf?ecf=' . urlencode($ecf);
+    $url = 'https://ecf.api.mseller.app/TesteCF/documentos-ecf?ecf=' . urlencode($ecf);
 
     $options = [
         'http' => [
@@ -736,8 +736,6 @@ Para asegurar que tu integración con MSeller ECF funcione correctamente, es fun
 ### Documentación y archivos XSD oficiales
 
 La DGII proporciona documentación detallada y archivos XSD (XML Schema Definition) que contienen la definición completa de la estructura de los documentos electrónicos. Estos recursos son esenciales para comprender los campos requeridos y las validaciones que se aplican a cada tipo de documento.
-
- 
 
 #### Formatos XML
 

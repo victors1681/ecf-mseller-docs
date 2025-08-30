@@ -19,7 +19,7 @@ POST /{entorno}/customer/authentication
 
 Donde `{entorno}` puede ser:
 
-- `TestCF` (para pruebas)
+- `TesteCF` (para pruebas)
 - `CertCF` (para certificación)
 - `eCF` (para producción)
 
@@ -63,7 +63,7 @@ X-API-KEY: {tu_api_key}
 
 ```bash
 curl -X POST \
-  https://ecf.api.mseller.app/TestCF/customer/authentication \
+  https://ecf.api.mseller.app/TesteCF/customer/authentication \
   -H 'Content-Type: application/json' \
   -d '{
     "email": "tu_email@ejemplo.com",
@@ -75,7 +75,7 @@ curl -X POST \
 
 ```bash
 curl -X GET \
-  https://ecf.api.mseller.app/TestCF/documentos-ecf?ecf=E123456789 \
+  https://ecf.api.mseller.app/TesteCF/documentos-ecf?ecf=E123456789 \
   -H 'Authorization: Bearer eyJraWQiOiJ1dE...' \
   -H 'X-API-KEY: tu_api_key'
 ```
@@ -89,7 +89,7 @@ curl -X GET \
 // Usando fetch
 async function authenticate() {
   const response = await fetch(
-    "https://ecf.api.mseller.app/TestCF/customer/authentication",
+    "https://ecf.api.mseller.app/TesteCF/customer/authentication",
     {
       method: "POST",
       headers: {
@@ -116,7 +116,7 @@ async function getDocument(ecf) {
   const idToken = localStorage.getItem("idToken");
 
   const response = await fetch(
-    `https://ecf.api.mseller.app/TestCF/documentos-ecf?ecf=${ecf}`,
+    `https://ecf.api.mseller.app/TesteCF/documentos-ecf?ecf=${ecf}`,
     {
       method: "GET",
       headers: {
@@ -161,7 +161,7 @@ public class MSellerAuthClient
             "application/json");
 
         var response = await _client.PostAsync(
-            "https://ecf.api.mseller.app/TestCF/customer/authentication",
+            "https://ecf.api.mseller.app/TesteCF/customer/authentication",
             content);
 
         var responseJson = await response.Content.ReadAsStringAsync();
@@ -178,7 +178,7 @@ public class MSellerAuthClient
         _client.DefaultRequestHeaders.Add("X-API-KEY", "tu_api_key");
 
         var response = await _client.GetAsync(
-            $"https://ecf.api.mseller.app/TestCF/documentos-ecf?ecf={ecf}");
+            $"https://ecf.api.mseller.app/TesteCF/documentos-ecf?ecf={ecf}");
 
         return await response.Content.ReadAsStringAsync();
     }
@@ -200,7 +200,7 @@ public class AuthResponse
 ```php
 <?php
 function authenticate() {
-    $url = 'https://ecf.api.mseller.app/TestCF/customer/authentication';
+    $url = 'https://ecf.api.mseller.app/TesteCF/customer/authentication';
     $data = [
         'email' => 'tu_email@ejemplo.com',
         'password' => 'tu_contraseña'
@@ -235,7 +235,7 @@ $_SESSION['idToken'] = $auth['idToken'];
 ```php
 <?php
 function getDocument($ecf) {
-    $url = 'https://ecf.api.mseller.app/TestCF/documentos-ecf?ecf=' . urlencode($ecf);
+    $url = 'https://ecf.api.mseller.app/TesteCF/documentos-ecf?ecf=' . urlencode($ecf);
 
     $options = [
         'http' => [
