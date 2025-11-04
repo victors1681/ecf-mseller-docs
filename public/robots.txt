@@ -1,0 +1,16 @@
+# Allow all robots to index and crawl all content
+User-agent: *
+Allow: /
+
+# Disallow admin or API routes if any
+Disallow: /api/
+
+# Sitemap location
+Sitemap: https://ecf.mseller.app/sitemap.xml
+
+# Specific crawl rules for better indexing
+User-agent: Googlebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /

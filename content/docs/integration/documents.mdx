@@ -33,7 +33,9 @@ Content-Type: application/json
 
 El cuerpo de la solicitud debe contener el documento en formato JSON estructurado según las especificaciones detalladas en [Formato de Documentos](/docs/integration/document-format).
 
-### Documento JSON completo de ejemplo
+### Ejemplos de documentos JSON
+
+#### Ejemplo 1: Factura de Crédito Fiscal con descuento simple
 
 ```json
 {
@@ -52,9 +54,9 @@ El cuerpo de la solicitud debe contener el documento en formato JSON estructurad
         "TotalPaginas": 1
       },
       "Emisor": {
-        "RNCEmisor": "Tu RNC",
-        "RazonSocialEmisor": "Tu Negocio",
-        "DireccionEmisor": "DireccionEmisor1",
+        "RNCEmisor": "102320705",
+        "RazonSocialEmisor": "Comercial Ejemplo SRL",
+        "DireccionEmisor": "Calle Principal No. 123",
         "FechaEmision": "29-06-2025"
       },
       "Comprador": {
@@ -77,7 +79,7 @@ El cuerpo de la solicitud debe contener el documento en formato JSON estructurad
         {
           "NumeroLinea": "1",
           "IndicadorFacturacion": "1",
-          "NombreItem": "Producto 1",
+          "NombreItem": "Producto Ejemplo",
           "IndicadorBienoServicio": "1",
           "CantidadItem": 24,
           "UnidadMedida": "43",
@@ -116,6 +118,117 @@ El cuerpo de la solicitud debe contener el documento en formato JSON estructurad
   }
 }
 ```
+
+#### Ejemplo 2: Factura de Consumo con múltiples ITBIS y producto exento
+
+Este ejemplo muestra una factura de consumo (tipo 32) con múltiples productos que incluyen diferentes tasas de ITBIS (18% y 16%) y un producto exento de impuestos.
+
+```json
+{
+  "ECF": {
+    "Encabezado": {
+      "Version": "1.0",
+      "IdDoc": {
+        "TipoeCF": 32,
+        "eNCF": "E320004380890",
+        "IndicadorEnvioDiferido": 1,
+        "IndicadorMontoGravado": 0,
+        "TipoIngresos": "01",
+        "TipoPago": 1
+      },
+      "Emisor": {
+        "RNCEmisor": "000000000",
+        "RazonSocialEmisor": "Empresa Ejemplo SRL",
+        "NombreComercial": "Tienda Ejemplo",
+        "Sucursal": "SUCURSAL PRINCIPAL",
+        "DireccionEmisor": "Calle Principal #100",
+        "Municipio": "010100",
+        "Provincia": "010000",
+        "WebSite": "www.ejemplo.com.do",
+        "CodigoVendedor": "VEND001",
+        "FechaEmision": "04-11-2025"
+      },
+      "Comprador": {
+        "RNCComprador": "40211111111",
+        "RazonSocialComprador": "Juan Pérez",
+        "DireccionComprador": "C/ Ejemplo #123",
+        "FechaEntrega": "04-11-2025"
+      },
+      "Totales": {
+        "MontoGravadoTotal": 1139.5,
+        "MontoGravadoI1": 807.02,
+        "MontoGravadoI2": 332.48,
+        "MontoExento": 96,
+        "ITBIS1": 18,
+        "ITBIS2": 16,
+        "TotalITBIS": 194.11,
+        "TotalITBIS1": 140.91,
+        "TotalITBIS2": 53.2,
+        "MontoTotal": 1405.39,
+        "MontoNoFacturable": 0
+      }
+    },
+    "DetallesItems": {
+      "Item": [
+        {
+          "NumeroLinea": 1,
+          "IndicadorFacturacion": 4,
+          "NombreItem": "AGUA FONTINA",
+          "IndicadorBienoServicio": 1,
+          "DescripcionItem": "AGUA FONTINA",
+          "CantidadItem": 1,
+          "UnidadMedida": 43,
+          "PrecioUnitarioItem": 96,
+          "MontoItem": 96
+        },
+        {
+          "NumeroLinea": 2,
+          "IndicadorFacturacion": 1,
+          "NombreItem": "MALTA INDIA 12/1",
+          "IndicadorBienoServicio": 1,
+          "DescripcionItem": "MALTA INDIA 12/1",
+          "CantidadItem": 1,
+          "UnidadMedida": 43,
+          "PrecioUnitarioItem": 807.02,
+          "DescuentoMonto": 24.21,
+          "TablaSubDescuento": {
+            "SubDescuento": [
+              {
+                "TipoSubDescuento": "%",
+                "SubDescuentoPorcentaje": 3,
+                "MontoSubDescuento": 24.21
+              }
+            ]
+          },
+          "MontoItem": 807.02
+        },
+        {
+          "NumeroLinea": 3,
+          "IndicadorFacturacion": 2,
+          "NombreItem": "CAFE BUSTELO CAPSULA 1.7 OZ.",
+          "IndicadorBienoServicio": 1,
+          "DescripcionItem": "CAFE BUSTELO CAPSULA 1.7 OZ.",
+          "CantidadItem": 1,
+          "UnidadMedida": 43,
+          "PrecioUnitarioItem": 332.48,
+          "MontoItem": 332.48
+        }
+      ]
+    },
+    "FechaHoraFirma": "03-11-2025 19:26:35"
+  }
+}
+```
+
+**Características destacadas de este ejemplo:**
+
+- **Producto exento** (Item 1): El agua tiene `IndicadorFacturacion: 4` que indica que está exenta de ITBIS
+- **Múltiples tasas de ITBIS**: Item 2 con ITBIS1 (18%) e Item 3 con ITBIS2 (16%)
+- **Descuento aplicado**: El Item 2 incluye un descuento del 3%
+- **Factura de consumo**: `TipoeCF: 32` para ventas al consumidor final
+- **Información completa del emisor**: Incluye sucursal, municipio, provincia y código de vendedor
+
+> **Nota importante**: Para facturas de consumo (tipo 32), puedes omitir el RNC del comprador si es una venta a persona física sin RNC, pero es recomendable incluirlo cuando esté disponible.
 
 ### Ejemplo de envío
 
@@ -680,6 +793,357 @@ print_r($resultado);
 | customerReceived   | Indicador de recepción por el cliente                               |
 | qr_url             | URL del código QR para consulta                                     |
 | customerId         | ID del cliente (RNC)                                                |
+
+## Consulta de documentos en batch
+
+Para consultar el estado de múltiples documentos en una sola solicitud, puedes utilizar el endpoint de consulta en batch. Este método es especialmente útil cuando necesitas verificar el estado de varios documentos simultáneamente, optimizando el rendimiento y reduciendo el número de llamadas a la API.
+
+```
+POST /{entorno}/documentos-ecf/status/batch
+```
+
+### Límites
+
+- **Máximo de documentos por consulta**: 100 e-CF por solicitud
+
+### Encabezados requeridos
+
+```
+Authorization: Bearer {tu_token}
+X-API-KEY: {tu_api_key}
+Content-Type: application/json
+```
+
+### Cuerpo de la solicitud
+
+El cuerpo de la solicitud debe contener un array con los números de comprobantes electrónicos (e-CF) que deseas consultar:
+
+```json
+{
+  "ecfs": ["E320004380895", "E310000510917", "E310000510916", "E310000510915"]
+}
+```
+
+<Tabs items={["cURL", "JavaScript", "C#", "PHP"]}>
+<TabsContent value="cURL">
+
+### Ejemplo de consulta en batch
+
+```bash
+curl -X POST \
+  https://ecf.api.mseller.app/TesteCF/documentos-ecf/status/batch \
+  -H 'Authorization: Bearer eyJraWQiOiJ1dE...' \
+  -H 'X-API-KEY: tu_api_key' \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "ecfs": ["E320004380895", "E310000510917", "E310000510916", "E310000510915"]
+  }'
+```
+
+</TabsContent>
+
+<TabsContent value="JavaScript">
+
+### Ejemplo de consulta en batch
+
+```javascript
+async function consultarDocumentosBatch(ecfs) {
+  const idToken = localStorage.getItem("idToken");
+
+  try {
+    const response = await fetch(
+      `https://ecf.api.mseller.app/TesteCF/documentos-ecf/status/batch`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${idToken}`,
+          "X-API-KEY": "tu_api_key",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ ecfs }),
+      }
+    );
+
+    const resultado = await response.json();
+    console.log("Estado de documentos:", resultado);
+    return resultado;
+  } catch (error) {
+    console.error("Error al consultar documentos en batch:", error);
+    throw error;
+  }
+}
+
+// Uso
+const ecfs = [
+  "E320004380895",
+  "E310000510917",
+  "E310000510916",
+  "E310000510915",
+];
+consultarDocumentosBatch(ecfs);
+```
+
+</TabsContent>
+
+<TabsContent value="C#">
+
+### Ejemplo de consulta en batch
+
+```csharp
+using System;
+using System.Collections.Generic;
+using System.Net.Http;
+using System.Text;
+using System.Threading.Tasks;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+
+public class MSellercfClient
+{
+    private readonly HttpClient _client = new HttpClient();
+    private readonly string _idToken;
+    private readonly string _apiKey;
+
+    public MSellercfClient(string idToken, string apiKey)
+    {
+        _idToken = idToken;
+        _apiKey = apiKey;
+    }
+
+    public async Task<JObject> ConsultarDocumentosBatch(List<string> ecfs)
+    {
+        _client.DefaultRequestHeaders.Clear();
+        _client.DefaultRequestHeaders.Add("Authorization", $"Bearer {_idToken}");
+        _client.DefaultRequestHeaders.Add("X-API-KEY", _apiKey);
+
+        var payload = new JObject
+        {
+            ["ecfs"] = JArray.FromObject(ecfs)
+        };
+
+        var content = new StringContent(
+            payload.ToString(),
+            Encoding.UTF8,
+            "application/json");
+
+        var response = await _client.PostAsync(
+            "https://ecf.api.mseller.app/TesteCF/documentos-ecf/status/batch",
+            content);
+
+        var responseJson = await response.Content.ReadAsStringAsync();
+        return JObject.Parse(responseJson);
+    }
+}
+
+// Uso
+var ecfs = new List<string>
+{
+    "E320004380895",
+    "E310000510917",
+    "E310000510916",
+    "E310000510915"
+};
+var resultado = await client.ConsultarDocumentosBatch(ecfs);
+```
+
+</TabsContent>
+
+<TabsContent value="PHP">
+
+### Ejemplo de consulta en batch
+
+```php
+<?php
+function consultarDocumentosBatch($ecfs, $idToken, $apiKey) {
+    $url = 'https://ecf.api.mseller.app/TesteCF/documentos-ecf/status/batch';
+
+    $payload = json_encode([
+        'ecfs' => $ecfs
+    ]);
+
+    $options = [
+        'http' => [
+            'method' => 'POST',
+            'header' =>
+                "Authorization: Bearer " . $idToken . "\r\n" .
+                "X-API-KEY: " . $apiKey . "\r\n" .
+                "Content-Type: application/json\r\n",
+            'content' => $payload
+        ]
+    ];
+
+    $context = stream_context_create($options);
+    $result = file_get_contents($url, false, $context);
+
+    if ($result === false) {
+        // Manejar error
+        return null;
+    }
+
+    return json_decode($result, true);
+}
+
+// Uso
+$idToken = $_SESSION['idToken']; // Obtenido del proceso de autenticación
+$apiKey = 'tu_api_key';
+$ecfs = [
+    'E320004380895',
+    'E310000510917',
+    'E310000510916',
+    'E310000510915'
+];
+$resultado = consultarDocumentosBatch($ecfs, $idToken, $apiKey);
+print_r($resultado);
+?>
+```
+
+</TabsContent>
+</Tabs>
+
+### Respuesta exitosa
+
+La respuesta incluye el total de documentos consultados y un array con los resultados de cada documento:
+
+```json
+{
+  "total": 4,
+  "results": [
+    {
+      "ecf": "E320004380895",
+      "status": "Aceptado",
+      "found": true,
+      "data": {
+        "buyerRnc": "00115275869",
+        "createdAt": 1762217966021,
+        "dgiiResponse": [
+          "{\"codigo\":1,\"estado\":\"Aceptado\",\"mensajes\":null,\"encf\":\"E320004380895\",\"secuenciaUtilizada\":true}"
+        ],
+        "documentType": "Factura de Consumo Electrónica",
+        "fileName": "102320705E320004380895.xml",
+        "internalTrackId": "aada68a0-42c6-4a0a-804a-db9c042e1dc6",
+        "invoiceTotal": 385.68,
+        "ncf": "E320004380895",
+        "qr_url": "https://fc.dgii.gov.do/testecf/consultatimbrefc?rncemisor=102320705&encf=E320004380895&montototal=385.68&codigoseguridad=A7HXQC",
+        "secretId": "b14ac74e-ab14-4230-8894-ec19929ed7bc",
+        "securityCode": "A7HXQC",
+        "signedXml": "102320705/documents/TesteCF/102320705E320004380895.xml",
+        "status": "Aceptado",
+        "summarySignedXml": "102320705/summaries/TesteCF/102320705E320004380895.xml",
+        "updateAt": 1762217969008,
+        "customerId": "102320705"
+      }
+    },
+    {
+      "ecf": "E310000510917",
+      "status": "Aceptado",
+      "found": true,
+      "data": {
+        "buyerRnc": "00115275869",
+        "createdAt": 1762215883006,
+        "documentType": "Factura de Crédito Fiscal Electrónico",
+        "invoiceTotal": 952.28,
+        "ncf": "E310000510917",
+        "qr_url": "https://ecf.dgii.gov.do/testecf/consultatimbre?rncemisor=102320705&RncComprador=00115275869&encf=E310000510917&fechaemision=04-11-2025&montototal=952.28&fechafirma=03-11-2025%2008%3A24%3A42&codigoseguridad=wKL28p",
+        "securityCode": "wKL28p",
+        "status": "Aceptado",
+        "updateAt": 1762215889088,
+        "customerId": "102320705"
+      }
+    },
+    {
+      "ecf": "E310000510916",
+      "status": "Rechazado",
+      "found": true,
+      "data": {
+        "buyerRnc": "00300717659",
+        "createdAt": 1762215563667,
+        "dgiiResponse": [
+          "{\"trackId\":\"32c4f7e0-dbbe-40cc-a1d4-e4cc0ff82c13\",\"codigo\":\"2\",\"estado\":\"Rechazado\",\"rnc\":\"102320705\",\"encf\":\"E310000510916\",\"secuenciaUtilizada\":true,\"fechaRecepcion\":\"11/3/2025 8:19:30 PM\",\"mensajes\":[{\"valor\":\"El campo MontoGravadoTotal del área Totales de la sección Encabezado\",\"codigo\":1920}]}"
+        ],
+        "documentType": "Factura de Crédito Fiscal Electrónico",
+        "invoiceTotal": 952.28,
+        "ncf": "E310000510916",
+        "status": "Rechazado",
+        "updateAt": 1762215575268,
+        "customerId": "102320705"
+      }
+    },
+    {
+      "ecf": "E310000510915",
+      "status": "Aceptado Condicional",
+      "found": true,
+      "data": {
+        "buyerRnc": "00115275869",
+        "createdAt": 1762215210792,
+        "dgiiResponse": [
+          "{\"trackId\":\"45309489-f05b-425b-bb67-6706d0a77225\",\"codigo\":\"4\",\"estado\":\"Aceptado Condicional\",\"rnc\":\"102320705\",\"encf\":\"E310000510915\",\"secuenciaUtilizada\":true,\"fechaRecepcion\":\"11/3/2025 8:13:37 PM\",\"mensajes\":[{\"valor\":\"El campo MontoGravadoTotal del área Totales de la sección Encabezado no corresponde con la sumatoria de los items de su factura ya que excede la tolerancia de 100.\",\"codigo\":1924},{\"valor\":\"El campo MontoTotal del área Totales de la sección Encabezado no es válido.El elemento MontoTotal no es correcto\",\"codigo\":11105}]}"
+        ],
+        "documentType": "Factura de Crédito Fiscal Electrónico",
+        "invoiceTotal": 952.28,
+        "ncf": "E310000510915",
+        "status": "Aceptado Condicional",
+        "updateAt": 1762215220782,
+        "customerId": "102320705"
+      }
+    }
+  ]
+}
+```
+
+### Campos de la respuesta batch
+
+| Campo   | Descripción                                           |
+| ------- | ----------------------------------------------------- |
+| total   | Cantidad total de documentos consultados              |
+| results | Array con los resultados de cada documento consultado |
+
+### Campos de cada resultado
+
+| Campo  | Descripción                                                                                                |
+| ------ | ---------------------------------------------------------------------------------------------------------- |
+| ecf    | Número de comprobante electrónico consultado                                                               |
+| status | Estado actual del documento ("Aceptado", "Rechazado", "Aceptado Condicional", etc.)                        |
+| found  | Indica si el documento fue encontrado en el sistema (true/false)                                           |
+| data   | Objeto con los detalles completos del documento (solo si found = true). Ver tabla de campos a continuación |
+
+### Campos del objeto data
+
+| Campo              | Descripción                                                     |
+| ------------------ | --------------------------------------------------------------- |
+| buyerRnc           | RNC del comprador                                               |
+| createdAt          | Timestamp de creación del documento                             |
+| customerReceived   | Indicador de recepción por el cliente (opcional)                |
+| customerReceivedAt | Fecha y hora en que el cliente recibió el documento (opcional)  |
+| customerResponse   | Respuesta completa en formato XML del comprador (opcional)      |
+| dgiiResponse       | Array con las respuestas recibidas de la DGII                   |
+| documentType       | Tipo de documento (ej: "Factura de Crédito Fiscal Electrónico") |
+| fileName           | Nombre del archivo XML generado                                 |
+| internalTrackId    | ID de seguimiento interno                                       |
+| invoiceTotal       | Monto total de la factura                                       |
+| ncf                | Número de Comprobante Fiscal                                    |
+| qr_url             | URL del código QR para consulta                                 |
+| secretId           | ID secreto asociado al documento                                |
+| securityCode       | Código de seguridad para la representación impresa              |
+| signedXml          | Ruta al documento XML firmado                                   |
+| summarySignedXml   | Ruta al resumen XML firmado (solo para e-CF tipo 32)            |
+| status             | Estado del documento                                            |
+| updateAt           | Timestamp de la última actualización                            |
+| customerId         | ID del cliente (RNC)                                            |
+
+### Ventajas de la consulta en batch
+
+1. **Optimización de rendimiento**: Reduce significativamente el número de llamadas HTTP necesarias.
+2. **Eficiencia de recursos**: Menor consumo de ancho de banda y mejor gestión de rate limits.
+3. **Sincronización masiva**: Ideal para sincronizar estados de múltiples documentos de forma periódica.
+4. **Mejor experiencia de usuario**: Respuestas más rápidas al consultar múltiples documentos simultáneamente.
+
+### Recomendaciones de uso
+
+- **Agrupación inteligente**: Agrupa documentos por período o proceso para optimizar las consultas.
+- **Límite recomendado**: Aunque el máximo es 100, considera usar grupos de 50 documentos para mejor rendimiento.
+- **Consultas programadas**: Implementa consultas batch programadas para actualizar estados de forma eficiente.
+- **Manejo de errores**: Procesa individualmente los documentos que no fueron encontrados (found = false).
+- **Cache local**: Almacena localmente los resultados para evitar consultas repetidas innecesarias.
 
 ## Estados de los documentos
 
