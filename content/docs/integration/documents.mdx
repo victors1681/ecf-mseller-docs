@@ -21,89 +21,6 @@ Donde `{entorno}` puede ser:
 - `CerteCF` (para certificación)
 - `eCF` (para producción)
 
-### Parámetro de validación
-
-Puedes agregar el parámetro `validate=true` al endpoint para validar el documento antes de enviarlo a la DGII:
-
-```
-POST /{entorno}/documentos-ecf?validate=true
-```
-
-> **⚠️ IMPORTANTE - Feature en fase de pruebas**: Esta opción está **activada por defecto** hasta completar la fase de depuración y pruebas. Durante este período, todos los documentos serán validados automáticamente antes de su envío. Una vez estabilizado el feature, esta validación será opcional y controlada explícitamente mediante el parámetro `validate=true`.
-
-Cuando este parámetro está presente, MSeller ECF realiza una **validación completa del documento** verificando que cumpla con todos los requisitos y parámetros necesarios antes de procesarlo y enviarlo a la DGII:
-
-- ✅ **Detecta errores de formato** antes de registrar el documento
-- ✅ **Verifica cálculos y totales** según las especificaciones de la DGII
-- ✅ **Valida campos requeridos** y sus valores permitidos
-- ✅ **Comprueba la estructura del documento** contra los esquemas XSD oficiales
-- ✅ **Ahorra secuencias de e-NCF** al evitar envíos con errores
-- ✅ **Debugging eficiente** con mensajes de error detallados antes del envío oficial
-
-**Respuesta de validación exitosa:**
-
-Si el documento pasa todas las validaciones, recibirás una respuesta indicando que el documento es válido:
-
-```json
-{
-  "valid": true,
-  "message": "El documento ha sido validado correctamente y cumple con todos los requisitos de la DGII"
-}
-```
-
-**Respuesta de validación con errores:**
-
-Si se encuentran errores, recibirás un detalle de los problemas encontrados:
-
-```json
-{
-  "message": "❌ 2 error(s):\n1. [TIPO_ECF_MISMATCH] ECF.Encabezado.IdDoc.TipoeCF: TipoeCF (322) no coincide con el código de tipo del eNCF (32) | Details: {\"expected\":32,\"received\":322,\"encf\":\"E320000000002\"}\n2. [TIPO_ECF_INVALID_LENGTH] ECF.Encabezado.IdDoc.TipoeCF: TipoeCF debe tener 2 dígitos | Details: {\"expected\":2,\"received\":3,\"value\":\"322\"}",
-  "code": "ECF_VALIDATION_FAILED",
-  "requestId": "fdc9a42b-fbf6-41c4-9985-1c27e312197a",
-  "details": {
-    "validationErrors": [
-      {
-        "code": "TIPO_ECF_MISMATCH",
-        "field": "ECF.Encabezado.IdDoc.TipoeCF",
-        "details": {
-          "expected": 32,
-          "received": 322,
-          "encf": "E320000000002"
-        },
-        "name": "EcfValidationError"
-      },
-      {
-        "code": "TIPO_ECF_INVALID_LENGTH",
-        "field": "ECF.Encabezado.IdDoc.TipoeCF",
-        "details": {
-          "expected": 2,
-          "received": 3,
-          "value": "322"
-        },
-        "name": "EcfValidationError"
-      }
-    ]
-  }
-}
-```
-
-**Campos de la respuesta de error:**
-
-| Campo                      | Descripción                                                                     |
-| -------------------------- | ------------------------------------------------------------------------------- |
-| message                    | Mensaje legible con el resumen de todos los errores encontrados                 |
-| code                       | Código de error general (`ECF_VALIDATION_FAILED`)                               |
-| requestId                  | ID único de la solicitud para seguimiento y debugging                           |
-| details.validationErrors   | Array con los errores de validación detallados                                  |
-| validationErrors[].code    | Código específico del error (ej: `TIPO_ECF_MISMATCH`)                           |
-| validationErrors[].field   | Ruta completa al campo con error (ej: `ECF.Encabezado.IdDoc.TipoeCF`)           |
-| validationErrors[].details | Objeto con información adicional del error (valores esperados, recibidos, etc.) |
-| validationErrors[].name    | Nombre del tipo de error (`EcfValidationError`)                                 |
-
-> **💡 Recomendación**: Usa `validate=true` durante el desarrollo y pruebas para asegurar que tus documentos cumplan con todos los requisitos antes de enviarlos oficialmente a la DGII.
-
-> **⚠️ Nota importante**: Cuando usas `validate=true`, el documento **NO se envía a la DGII** y **NO se consume una secuencia de e-NCF**. Solo se realiza la validación del formato y contenido.
-
 ### Encabezados requeridos
 
 ```
@@ -312,6 +229,89 @@ Este ejemplo muestra una factura de consumo (tipo 32) con múltiples productos q
 - **Información completa del emisor**: Incluye sucursal, municipio, provincia y código de vendedor
 
 > **Nota importante**: Para facturas de consumo (tipo 32), puedes omitir el RNC del comprador si es una venta a persona física sin RNC, pero es recomendable incluirlo cuando esté disponible.
+
+### Parámetro de validación
+
+Puedes agregar el parámetro `validate=true` al endpoint para validar el documento antes de enviarlo a la DGII:
+
+```
+POST /{entorno}/documentos-ecf?validate=true
+```
+
+> **⚠️ IMPORTANTE - Feature en fase de pruebas**: Esta opción está **activada por defecto** hasta completar la fase de depuración y pruebas. Durante este período, todos los documentos serán validados automáticamente antes de su envío. Una vez estabilizado el feature, esta validación será opcional y controlada explícitamente mediante el parámetro `validate=true`.
+
+Cuando este parámetro está presente, MSeller ECF realiza una **validación completa del documento** verificando que cumpla con todos los requisitos y parámetros necesarios antes de procesarlo y enviarlo a la DGII:
+
+- **Detecta errores de formato** antes de registrar el documento
+- **Verifica cálculos y totales** según las especificaciones de la DGII
+- **Valida campos requeridos** y sus valores permitidos
+- **Comprueba la estructura del documento** contra los esquemas XSD oficiales
+- **Ahorra secuencias de e-NCF** al evitar envíos con errores
+- **Debugging eficiente** con mensajes de error detallados antes del envío oficial
+
+**Respuesta de validación exitosa:**
+
+Si el documento pasa todas las validaciones, recibirás una respuesta indicando que el documento es válido:
+
+```json
+{
+  "valid": true,
+  "message": "El documento ha sido validado correctamente y cumple con todos los requisitos de la DGII"
+}
+```
+
+**Respuesta de validación con errores:**
+
+Si se encuentran errores, recibirás un detalle de los problemas encontrados:
+
+```json
+{
+  "message": " 2 error(s):\n1. [TIPO_ECF_MISMATCH] ECF.Encabezado.IdDoc.TipoeCF: TipoeCF (322) no coincide con el código de tipo del eNCF (32) | Details: {\"expected\":32,\"received\":322,\"encf\":\"E320000000002\"}\n2. [TIPO_ECF_INVALID_LENGTH] ECF.Encabezado.IdDoc.TipoeCF: TipoeCF debe tener 2 dígitos | Details: {\"expected\":2,\"received\":3,\"value\":\"322\"}",
+  "code": "ECF_VALIDATION_FAILED",
+  "requestId": "fdc9a42b-fbf6-41c4-9985-1c27e312197a",
+  "details": {
+    "validationErrors": [
+      {
+        "code": "TIPO_ECF_MISMATCH",
+        "field": "ECF.Encabezado.IdDoc.TipoeCF",
+        "details": {
+          "expected": 32,
+          "received": 322,
+          "encf": "E320000000002"
+        },
+        "name": "EcfValidationError"
+      },
+      {
+        "code": "TIPO_ECF_INVALID_LENGTH",
+        "field": "ECF.Encabezado.IdDoc.TipoeCF",
+        "details": {
+          "expected": 2,
+          "received": 3,
+          "value": "322"
+        },
+        "name": "EcfValidationError"
+      }
+    ]
+  }
+}
+```
+
+**Campos de la respuesta de error:**
+
+| Campo                      | Descripción                                                                     |
+| -------------------------- | ------------------------------------------------------------------------------- |
+| message                    | Mensaje legible con el resumen de todos los errores encontrados                 |
+| code                       | Código de error general (`ECF_VALIDATION_FAILED`)                               |
+| requestId                  | ID único de la solicitud para seguimiento y debugging                           |
+| details.validationErrors   | Array con los errores de validación detallados                                  |
+| validationErrors[].code    | Código específico del error (ej: `TIPO_ECF_MISMATCH`)                           |
+| validationErrors[].field   | Ruta completa al campo con error (ej: `ECF.Encabezado.IdDoc.TipoeCF`)           |
+| validationErrors[].details | Objeto con información adicional del error (valores esperados, recibidos, etc.) |
+| validationErrors[].name    | Nombre del tipo de error (`EcfValidationError`)                                 |
+
+> **💡 Recomendación**: Usa `validate=true` durante el desarrollo y pruebas para asegurar que tus documentos cumplan con todos los requisitos antes de enviarlos oficialmente a la DGII.
+
+> **⚠️ Nota importante**: Cuando usas `validate=true`, el documento **NO se envía a la DGII** y **NO se consume una secuencia de e-NCF**. Solo se realiza la validación del formato y contenido.
 
 ### Ejemplo de validación de documento
 
