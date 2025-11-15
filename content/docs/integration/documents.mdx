@@ -21,6 +21,89 @@ Donde `{entorno}` puede ser:
 - `CerteCF` (para certificación)
 - `eCF` (para producción)
 
+### Parámetro de validación
+
+Puedes agregar el parámetro `validate=true` al endpoint para validar el documento antes de enviarlo a la DGII:
+
+```
+POST /{entorno}/documentos-ecf?validate=true
+```
+
+> **⚠️ IMPORTANTE - Feature en fase de pruebas**: Esta opción está **activada por defecto** hasta completar la fase de depuración y pruebas. Durante este período, todos los documentos serán validados automáticamente antes de su envío. Una vez estabilizado el feature, esta validación será opcional y controlada explícitamente mediante el parámetro `validate=true`.
+
+Cuando este parámetro está presente, MSeller ECF realiza una **validación completa del documento** verificando que cumpla con todos los requisitos y parámetros necesarios antes de procesarlo y enviarlo a la DGII:
+
+- ✅ **Detecta errores de formato** antes de registrar el documento
+- ✅ **Verifica cálculos y totales** según las especificaciones de la DGII
+- ✅ **Valida campos requeridos** y sus valores permitidos
+- ✅ **Comprueba la estructura del documento** contra los esquemas XSD oficiales
+- ✅ **Ahorra secuencias de e-NCF** al evitar envíos con errores
+- ✅ **Debugging eficiente** con mensajes de error detallados antes del envío oficial
+
+**Respuesta de validación exitosa:**
+
+Si el documento pasa todas las validaciones, recibirás una respuesta indicando que el documento es válido:
+
+```json
+{
+  "valid": true,
+  "message": "El documento ha sido validado correctamente y cumple con todos los requisitos de la DGII"
+}
+```
+
+**Respuesta de validación con errores:**
+
+Si se encuentran errores, recibirás un detalle de los problemas encontrados:
+
+```json
+{
+  "message": "❌ 2 error(s):\n1. [TIPO_ECF_MISMATCH] ECF.Encabezado.IdDoc.TipoeCF: TipoeCF (322) no coincide con el código de tipo del eNCF (32) | Details: {\"expected\":32,\"received\":322,\"encf\":\"E320000000002\"}\n2. [TIPO_ECF_INVALID_LENGTH] ECF.Encabezado.IdDoc.TipoeCF: TipoeCF debe tener 2 dígitos | Details: {\"expected\":2,\"received\":3,\"value\":\"322\"}",
+  "code": "ECF_VALIDATION_FAILED",
+  "requestId": "fdc9a42b-fbf6-41c4-9985-1c27e312197a",
+  "details": {
+    "validationErrors": [
+      {
+        "code": "TIPO_ECF_MISMATCH",
+        "field": "ECF.Encabezado.IdDoc.TipoeCF",
+        "details": {
+          "expected": 32,
+          "received": 322,
+          "encf": "E320000000002"
+        },
+        "name": "EcfValidationError"
+      },
+      {
+        "code": "TIPO_ECF_INVALID_LENGTH",
+        "field": "ECF.Encabezado.IdDoc.TipoeCF",
+        "details": {
+          "expected": 2,
+          "received": 3,
+          "value": "322"
+        },
+        "name": "EcfValidationError"
+      }
+    ]
+  }
+}
+```
+
+**Campos de la respuesta de error:**
+
+| Campo                      | Descripción                                                                     |
+| -------------------------- | ------------------------------------------------------------------------------- |
+| message                    | Mensaje legible con el resumen de todos los errores encontrados                 |
+| code                       | Código de error general (`ECF_VALIDATION_FAILED`)                               |
+| requestId                  | ID único de la solicitud para seguimiento y debugging                           |
+| details.validationErrors   | Array con los errores de validación detallados                                  |
+| validationErrors[].code    | Código específico del error (ej: `TIPO_ECF_MISMATCH`)                           |
+| validationErrors[].field   | Ruta completa al campo con error (ej: `ECF.Encabezado.IdDoc.TipoeCF`)           |
+| validationErrors[].details | Objeto con información adicional del error (valores esperados, recibidos, etc.) |
+| validationErrors[].name    | Nombre del tipo de error (`EcfValidationError`)                                 |
+
+> **💡 Recomendación**: Usa `validate=true` durante el desarrollo y pruebas para asegurar que tus documentos cumplan con todos los requisitos antes de enviarlos oficialmente a la DGII.
+
+> **⚠️ Nota importante**: Cuando usas `validate=true`, el documento **NO se envía a la DGII** y **NO se consume una secuencia de e-NCF**. Solo se realiza la validación del formato y contenido.
+
 ### Encabezados requeridos
 
 ```
@@ -229,6 +312,237 @@ Este ejemplo muestra una factura de consumo (tipo 32) con múltiples productos q
 - **Información completa del emisor**: Incluye sucursal, municipio, provincia y código de vendedor
 
 > **Nota importante**: Para facturas de consumo (tipo 32), puedes omitir el RNC del comprador si es una venta a persona física sin RNC, pero es recomendable incluirlo cuando esté disponible.
+
+### Ejemplo de validación de documento
+
+Antes de enviar un documento oficialmente, puedes validarlo usando el parámetro `validate=true`:
+
+<Tabs items={["cURL", "JavaScript", "C#", "PHP"]}>
+<TabsContent value="cURL">
+
+```bash
+curl -X POST \
+  'https://ecf.api.mseller.app/TesteCF/documentos-ecf?validate=true' \
+  -H 'Authorization: Bearer eyJraWQiOiJ1dE...' \
+  -H 'X-API-KEY: tu_api_key' \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "ECF": {
+      "Encabezado": {
+        "Version": "1.0",
+        "IdDoc": {
+          "TipoeCF": "31",
+          "eNCF": "E310571508136"
+        },
+        "Emisor": {
+          "RNCEmisor": "102320705",
+          "RazonSocialEmisor": "Comercial Ejemplo SRL"
+        }
+      }
+    }
+  }'
+```
+
+</TabsContent>
+
+<TabsContent value="JavaScript">
+
+```javascript
+async function validarDocumento(documento) {
+  const idToken = localStorage.getItem("idToken");
+
+  try {
+    const response = await fetch(
+      "https://ecf.api.mseller.app/TesteCF/documentos-ecf?validate=true",
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${idToken}`,
+          "X-API-KEY": "tu_api_key",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(documento),
+      }
+    );
+
+    const resultado = await response.json();
+
+    // Verificar si la validación fue exitosa
+    if (response.ok && resultado.valid) {
+      console.log("✓ Documento válido, listo para enviar");
+      // Ahora puedes enviarlo sin el parámetro validate
+      return enviarDocumento(documento);
+    } else if (resultado.code === "ECF_VALIDATION_FAILED") {
+      console.error("✗ Errores de validación encontrados:");
+      console.error(`Request ID: ${resultado.requestId}`);
+      console.error(resultado.message);
+
+      // Mostrar detalles de cada error
+      resultado.details.validationErrors.forEach((error, index) => {
+        console.error(`\nError ${index + 1}:`);
+        console.error(`  Campo: ${error.field}`);
+        console.error(`  Código: ${error.code}`);
+        console.error(`  Detalles:`, error.details);
+      });
+
+      return resultado;
+    } else {
+      console.error("✗ Error inesperado:", resultado);
+      return resultado;
+    }
+  } catch (error) {
+    console.error("Error al validar documento:", error);
+    throw error;
+  }
+}
+```
+
+</TabsContent>
+
+<TabsContent value="C#">
+
+```csharp
+using System;
+using System.Net.Http;
+using System.Text;
+using System.Threading.Tasks;
+using Newtonsoft.Json.Linq;
+
+public class MSellercfClient
+{
+    private readonly HttpClient _client = new HttpClient();
+    private readonly string _idToken;
+    private readonly string _apiKey;
+
+    public MSellercfClient(string idToken, string apiKey)
+    {
+        _idToken = idToken;
+        _apiKey = apiKey;
+    }
+
+    public async Task<JObject> ValidarDocumento(JObject documento)
+    {
+        _client.DefaultRequestHeaders.Clear();
+        _client.DefaultRequestHeaders.Add("Authorization", $"Bearer {_idToken}");
+        _client.DefaultRequestHeaders.Add("X-API-KEY", _apiKey);
+
+        var content = new StringContent(
+            documento.ToString(),
+            Encoding.UTF8,
+            "application/json");
+
+        var response = await _client.PostAsync(
+            "https://ecf.api.mseller.app/TesteCF/documentos-ecf?validate=true",
+            content);
+
+        var responseJson = await response.Content.ReadAsStringAsync();
+        var resultado = JObject.Parse(responseJson);
+
+        // Verificar si la validación fue exitosa
+        if (response.IsSuccessStatusCode && resultado["valid"]?.ToObject<bool>() == true)
+        {
+            Console.WriteLine("✓ Documento válido, listo para enviar");
+            // Ahora puedes enviarlo sin el parámetro validate
+            return await EnviarDocumento(documento);
+        }
+        else if (resultado["code"]?.ToString() == "ECF_VALIDATION_FAILED")
+        {
+            Console.WriteLine("✗ Errores de validación encontrados:");
+            Console.WriteLine($"Request ID: {resultado["requestId"]}");
+            Console.WriteLine(resultado["message"]);
+
+            // Mostrar detalles de cada error
+            var errors = resultado["details"]?["validationErrors"];
+            if (errors != null)
+            {
+                for (int i = 0; i < errors.Count(); i++)
+                {
+                    var error = errors[i];
+                    Console.WriteLine($"\nError {i + 1}:");
+                    Console.WriteLine($"  Campo: {error["field"]}");
+                    Console.WriteLine($"  Código: {error["code"]}");
+                    Console.WriteLine($"  Detalles: {error["details"]}");
+                }
+            }
+
+            return resultado;
+        }
+        else
+        {
+            Console.WriteLine("✗ Error inesperado:");
+            Console.WriteLine(resultado);
+            return resultado;
+        }
+    }
+}
+```
+
+</TabsContent>
+
+<TabsContent value="PHP">
+
+```php
+<?php
+function validarDocumento($documento, $idToken, $apiKey) {
+    $url = 'https://ecf.api.mseller.app/TesteCF/documentos-ecf?validate=true';
+
+    $options = [
+        'http' => [
+            'method' => 'POST',
+            'header' =>
+                "Authorization: Bearer " . $idToken . "\r\n" .
+                "X-API-KEY: " . $apiKey . "\r\n" .
+                "Content-Type: application/json\r\n",
+            'content' => json_encode($documento)
+        ]
+    ];
+
+    $context = stream_context_create($options);
+    $result = file_get_contents($url, false, $context);
+
+    if ($result === false) {
+        throw new Exception('Error al validar documento');
+    }
+
+    $resultado = json_decode($result, true);
+
+    // Verificar si la validación fue exitosa
+    if (isset($resultado['valid']) && $resultado['valid'] === true) {
+        echo "✓ Documento válido, listo para enviar\n";
+        // Ahora puedes enviarlo sin el parámetro validate
+        return enviarDocumento($documento, $idToken, $apiKey);
+    } else if (isset($resultado['code']) && $resultado['code'] === 'ECF_VALIDATION_FAILED') {
+        echo "✗ Errores de validación encontrados:\n";
+        echo "Request ID: " . $resultado['requestId'] . "\n";
+        echo $resultado['message'] . "\n";
+
+        // Mostrar detalles de cada error
+        if (isset($resultado['details']['validationErrors'])) {
+            foreach ($resultado['details']['validationErrors'] as $index => $error) {
+                echo "\nError " . ($index + 1) . ":\n";
+                echo "  Campo: " . $error['field'] . "\n";
+                echo "  Código: " . $error['code'] . "\n";
+                echo "  Detalles: " . json_encode($error['details']) . "\n";
+            }
+        }
+
+        return $resultado;
+    } else {
+        echo "✗ Error inesperado:\n";
+        print_r($resultado);
+        return $resultado;
+    }
+}
+
+// Uso
+$idToken = $_SESSION['idToken'];
+$apiKey = 'tu_api_key';
+$resultado = validarDocumento($documento, $idToken, $apiKey);
+?>
+```
+
+</TabsContent>
+</Tabs>
 
 ### Ejemplo de envío
 
@@ -1185,13 +1499,14 @@ Es importante entender que MSeller ECF utiliza un procesamiento asíncrono para 
 
 ## Buenas prácticas
 
-1. **Validación previa**: Valida los documentos JSON antes de enviarlos para evitar rechazos.
-2. **Manejo de errores**: Implementa un sistema robusto para manejar los diferentes tipos de errores.
-3. **Reintentos**: Implementa una estrategia de reintentos para casos de fallos temporales.
+1. **Validación previa con parámetro validate**: Usa el parámetro `validate=true` durante el desarrollo para validar tus documentos antes de enviarlos oficialmente. Esto te permite detectar errores sin consumir secuencias de e-NCF.
+2. **Manejo de errores**: Implementa un sistema robusto para manejar los diferentes tipos de errores retornados tanto por la validación como por la DGII.
+3. **Reintentos**: Implementa una estrategia de reintentos para casos de fallos temporales, pero evita reintentar documentos con errores de validación.
 4. **Almacenamiento local**: Mantén una copia local de los documentos enviados para referencia futura.
 5. **Consulta periódica**: Implementa consultas periódicas para actualizar el estado de los documentos enviados.
 6. **Tiempo de espera**: Programa consultas con un tiempo de espera adecuado entre el envío del documento y la consulta de su estado.
 7. **Gestión de códigos de seguridad**: Almacena y gestiona correctamente los códigos de seguridad y URLs de QR para la representación impresa de las facturas.
+8. **Proceso de dos pasos**: En desarrollo, primero valida con `validate=true` y si es exitoso, envía sin el parámetro para el registro oficial.
 
 ## Recursos y herramientas para la adaptación de documentos
 
