@@ -238,7 +238,7 @@ Puedes agregar el parámetro `validate=true` al endpoint para validar el documen
 POST /{entorno}/documentos-ecf?validate=true
 ```
 
-> **⚠️ IMPORTANTE - Feature en fase de pruebas**: Esta opción está **activada por defecto** hasta completar la fase de depuración y pruebas. Durante este período, todos los documentos serán validados automáticamente antes de su envío. Una vez estabilizado el feature, esta validación será opcional y controlada explícitamente mediante el parámetro `validate=true`.
+> **⚠️ IMPORTANTE - Esta opción está en fase de pruebas**: Esta opción no está activada por defecto hasta completar la fase de depuración y pruebas. Durante este período, ningún documento será validado automáticamente. Una vez estabilizado el feature, esta validación no será opcional y no será controlada explícitamente mediante el parámetro `validate=true`.
 
 Cuando este parámetro está presente, MSeller ECF realiza una **validación completa del documento** verificando que cumpla con todos los requisitos y parámetros necesarios antes de procesarlo y enviarlo a la DGII:
 
