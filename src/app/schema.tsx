@@ -15,7 +15,7 @@ export function generateOrganizationSchema() {
     contactPoint: {
       "@type": "ContactPoint",
       contactType: "Technical Support",
-      url: "https://discord.gg/ATcEDuWf",
+      url: "https://discord.gg/7xnNByfWTG",
     },
   };
 }
@@ -49,7 +49,7 @@ export function generateSoftwareApplicationSchema() {
 }
 
 export function generateBreadcrumbSchema(
-  items: { name: string; url: string }[]
+  items: { name: string; url: string }[],
 ) {
   return {
     "@context": "https://schema.org",
@@ -64,7 +64,7 @@ export function generateBreadcrumbSchema(
 }
 
 export function generateFAQSchema(
-  faqs: { question: string; answer: string }[]
+  faqs: { question: string; answer: string }[],
 ) {
   return {
     "@context": "https://schema.org",
