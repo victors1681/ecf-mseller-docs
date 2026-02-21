@@ -15,7 +15,7 @@ export function generateOrganizationSchema() {
     contactPoint: {
       "@type": "ContactPoint",
       contactType: "Technical Support",
-      url: "https://discord.gg/ATcEDuWf",
+      url: "https://discord.gg/7xnNByfWTG",
     },
   };
 }
