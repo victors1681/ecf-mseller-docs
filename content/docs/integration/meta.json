@@ -4,7 +4,8 @@
         "overview",
         "authentication",
         "document-format",
-        "documents"
+        "documents",
+        "document-queries"
     ],
     "defaultOpen": true
 }
