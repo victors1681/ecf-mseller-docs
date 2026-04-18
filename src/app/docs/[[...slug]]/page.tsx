@@ -8,6 +8,7 @@ import {
 import { notFound } from 'next/navigation';
 import { createRelativeLink } from 'fumadocs-ui/mdx';
 import { getMDXComponents } from '@/mdx-components';
+import { generateHowToSchema, generateVideoSchema } from '../../schema';
 
 export default async function Page(props: {
   params: Promise<{ slug?: string[] }>;
@@ -17,15 +18,32 @@ export default async function Page(props: {
   if (!page) notFound();
 
   const MDXContent = page.data.body;
+  const slug = params.slug?.join('/') ?? '';
+  const isCertification = slug === 'certification/process';
 
   return (
     <DocsPage toc={page.data.toc} full={page.data.full}>
+      {isCertification && (
+        <>
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{
+              __html: JSON.stringify(generateHowToSchema()),
+            }}
+          />
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{
+              __html: JSON.stringify(generateVideoSchema()),
+            }}
+          />
+        </>
+      )}
       <DocsTitle>{page.data.title}</DocsTitle>
       <DocsDescription>{page.data.description}</DocsDescription>
       <DocsBody>
         <MDXContent
           components={getMDXComponents({
-            // this allows you to link to other pages with relative file paths
             a: createRelativeLink(source, page),
           })}
         />
@@ -45,8 +63,21 @@ export async function generateMetadata(props: {
   const page = source.getPage(params.slug);
   if (!page) notFound();
 
+  const baseUrl = 'https://ecf.mseller.app';
+  const slug = params.slug?.join('/') ?? '';
+  const pageUrl = `${baseUrl}/docs/${slug}`;
+
   return {
     title: page.data.title,
     description: page.data.description,
+    alternates: {
+      canonical: pageUrl,
+    },
+    openGraph: {
+      title: page.data.title,
+      description: page.data.description,
+      url: pageUrl,
+      type: 'article',
+    },
   };
 }

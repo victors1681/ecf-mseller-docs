@@ -8,6 +8,21 @@ Disallow: /api/
 # Sitemap location
 Sitemap: https://ecf.mseller.app/sitemap.xml
 
+# LLMs and AI agents
+# See https://llmstxt.org
+# Summary for AI agents at /llms.txt
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: Claude-Web
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Amazonbot
+Allow: /
+
 # Specific crawl rules for better indexing
 User-agent: Googlebot
 Allow: /

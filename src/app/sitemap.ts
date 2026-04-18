@@ -13,7 +13,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     url: `${baseUrl}${page.url}`,
     lastModified: new Date(),
     changeFrequency: "weekly",
-    priority: page.url === "/docs" ? 1.0 : 0.8,
+    priority: page.url === "/docs" ? 1.0 : page.url.includes("certification") ? 0.95 : 0.8,
   }));
 
   // Add main pages
