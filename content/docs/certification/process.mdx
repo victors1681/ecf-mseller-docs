@@ -113,33 +113,15 @@ Envía un correo electrónico al equipo de MSeller para validar tu postulación.
 
 ## Paso 5 — Pruebas de simulación e-CF
 
-Una vez aprobada tu postulación, debes enviar un documento de prueba por cada tipo de e-CF requerido por la DGII. El backend de MSeller firma y envía cada documento al entorno CerteCF de DGII automáticamente.
+Envía un documento de prueba por cada tipo de e-CF. MSeller firma y envía cada uno al entorno CerteCF automáticamente.
 
-### Tipos de documentos requeridos
+- Haz clic en **Enviar todos automáticamente** o envía los documentos uno por uno.
+- Los tipos **33** y **34** requieren enviar primero el **Tipo 32 (< 250K)**, ya que lo referencian como documento modificado.
+- Tus datos (RNC, razón social) se inyectan automáticamente en cada documento.
 
-| Tipo   | Descripción                                    |
-| ------ | ---------------------------------------------- |
-| **31** | Factura de Crédito Fiscal                      |
-| **32** | Factura de Consumo (< 250K)                    |
-| **32** | Factura de Consumo (≥ 250K)                    |
-| **33** | Nota de Débito                                 |
-| **34** | Nota de Crédito                                |
-| **41** | Compras                                        |
-| **43** | Gastos Menores                                 |
-| **44** | Regímenes Especiales                           |
-| **45** | Gubernamental                                  |
-| **46** | Exportaciones                                  |
-| **47** | Pagos al Exterior                              |
+> Una vez enviados todos, descarga el XML de la **Factura de Consumo < 250K** y súbelo al portal DGII.
 
-📄 **[Ver el formato JSON de cada tipo de documento →](/docs/certification/simulation-fixtures)**
-
-### Proceso de envío
-
-- Puedes enviar los documentos **uno por uno** o hacer clic en **Enviar todos automáticamente** para que el sistema los procese secuencialmente con un intervalo de 1.5 segundos entre cada envío.
-- Los tipos 33 (Nota de Débito) y 34 (Nota de Crédito) requieren que se envíe primero el **Tipo 32 (< 250K)**, ya que lo referencian como documento modificado.
-- El sistema usa fixtures predefinidos con tus datos (RNC, razón social) que se inyectan automáticamente al momento del envío.
-
-> **Nota**: Una vez enviados todos los documentos, descarga el XML de la **Factura de Consumo < 250K** y súbelo al portal DGII en la sección correspondiente.
+📄 **[Ver el formato JSON de cada tipo de documento →](/docs/certification/formato-documentos)**
 
 ---
 
