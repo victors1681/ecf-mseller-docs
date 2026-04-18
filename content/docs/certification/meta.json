@@ -1,8 +1,7 @@
 {
     "title": "Certificación",
     "pages": [
-        "process",
-        "formato-documentos"
+        "process"
     ],
     "defaultOpen": true
 }
