@@ -1,7 +1,8 @@
 {
     "title": "Certificación",
     "pages": [
-        "process"
+        "process",
+        "simulation-fixtures"
     ],
     "defaultOpen": true
 }

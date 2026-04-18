@@ -10,6 +10,15 @@ import { createRelativeLink } from 'fumadocs-ui/mdx';
 import { getMDXComponents } from '@/mdx-components';
 import { generateHowToSchema, generateVideoSchema } from '../../schema';
 
+function JsonLd({ data }: { data: Record<string, unknown> }) {
+  return (
+    <script
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(data) }}
+    />
+  );
+}
+
 export default async function Page(props: {
   params: Promise<{ slug?: string[] }>;
 }) {
@@ -22,33 +31,25 @@ export default async function Page(props: {
   const isCertification = slug === 'certification/process';
 
   return (
-    <DocsPage toc={page.data.toc} full={page.data.full}>
+    <>
       {isCertification && (
         <>
-          <script
-            type="application/ld+json"
-            dangerouslySetInnerHTML={{
-              __html: JSON.stringify(generateHowToSchema()),
-            }}
-          />
-          <script
-            type="application/ld+json"
-            dangerouslySetInnerHTML={{
-              __html: JSON.stringify(generateVideoSchema()),
-            }}
-          />
+          <JsonLd data={generateHowToSchema()} />
+          <JsonLd data={generateVideoSchema()} />
         </>
       )}
-      <DocsTitle>{page.data.title}</DocsTitle>
-      <DocsDescription>{page.data.description}</DocsDescription>
-      <DocsBody>
-        <MDXContent
-          components={getMDXComponents({
-            a: createRelativeLink(source, page),
-          })}
-        />
-      </DocsBody>
-    </DocsPage>
+      <DocsPage toc={page.data.toc} full={page.data.full}>
+        <DocsTitle>{page.data.title}</DocsTitle>
+        <DocsDescription>{page.data.description}</DocsDescription>
+        <DocsBody>
+          <MDXContent
+            components={getMDXComponents({
+              a: createRelativeLink(source, page),
+            })}
+          />
+        </DocsBody>
+      </DocsPage>
+    </>
   );
 }
 
