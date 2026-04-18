@@ -180,7 +180,7 @@ Factura de consumo por un monto igual o mayor a RD$250,000. Requiere datos del c
 
 ## Tipo 33 — Nota de Débito
 
-Nota de débito que referencia un documento previo. Requiere la sección `InformacionReferencia` con el eNCF del Tipo 32 (&lt; 250K).
+Nota de débito que referencia un comprobante previo. Requiere la sección `InformacionReferencia` con el eNCF del documento que se modifica.
 
 ```json
 {
@@ -242,13 +242,23 @@ Nota de débito que referencia un documento previo. Requiere la sección `Inform
 }
 ```
 
-> **Nota**: `NCFModificado` se completa automáticamente con el eNCF del Tipo 32 (&lt; 250K) enviado previamente. El `CodigoModificacion` `3` indica "Descuento o bonificación".
+> **Nota**: En el entorno de certificación, `NCFModificado` se completa automáticamente con el eNCF del Tipo 32 (&lt; 250K) enviado previamente. En producción, puede ser cualquier comprobante que se desee modificar.
 
 ---
 
 ## Tipo 34 — Nota de Crédito
 
-Nota de crédito con referencia al documento original. También requiere `InformacionReferencia` con el eNCF del Tipo 32 (&lt; 250K).
+Nota de crédito que modifica un comprobante emitido previamente. Requiere la sección `InformacionReferencia` donde `NCFModificado` es el eNCF de **cualquier comprobante** que se desee modificar (no solo Tipo 32).
+
+### CodigoModificacion
+
+| Código | Descripción                              | Aplica a          |
+| ------ | ---------------------------------------- | ----------------- |
+| **1**  | Anulación total del NCF modificado       | Nota de Crédito / Débito |
+| **2**  | Corrección de texto del comprobante      | Nota de Crédito / Débito |
+| **3**  | Corrección de montos del NCF modificado  | Nota de Crédito / Débito |
+| **4**  | Reemplazo de NCF emitido en contingencia | Condicional       |
+| **5**  | Referencia a Factura de Consumo Electrónica | —              |
 
 ```json
 {
@@ -302,6 +312,8 @@ Nota de crédito con referencia al documento original. También requiere `Inform
   }
 }
 ```
+
+> **Nota**: En el entorno de certificación, `NCFModificado` se completa automáticamente con el eNCF del Tipo 32 (&lt; 250K). En producción, usa el eNCF del comprobante que deseas modificar y el `CodigoModificacion` que corresponda.
 
 ---
 
