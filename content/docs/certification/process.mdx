@@ -1,55 +1,224 @@
 ---
 title: Proceso de Certificación
-description: Guía paso a paso para completar el proceso de certificación ante la DGII usando MSeller ECF
+description: Guía paso a paso para completar el proceso de certificación CerteCF ante la DGII usando MSeller ECF
 ---
 
-# Proceso de Certificación
+# Proceso de Certificación DGII (CerteCF)
 
-El proceso de certificación es un paso obligatorio ante la DGII para que tu empresa pueda emitir comprobantes fiscales electrónicos (e-CF) en producción. A continuación, se detallan los datos y configuraciones necesarias para completar este proceso.
+El proceso de certificación es un paso **obligatorio** ante la DGII para que tu empresa pueda emitir comprobantes fiscales electrónicos (e-CF) en producción. MSeller ECF incluye un asistente interactivo que te guía paso a paso a través de todo el proceso directamente desde el panel de administración.
 
-## Datos del software a utilizar
+> **Requisito previo**: Antes de iniciar la certificación, asegúrate de tener una cuenta activa en [ecf.mseller.app](https://ecf.mseller.app) y un certificado digital válido (archivo `.p12`).
 
-Al momento de registrar tu software en el portal de la DGII para el proceso de certificación, deberás completar los siguientes campos:
+## Video tutorial
 
-| Campo                    | Valor   |
-| ------------------------ | ------- |
-| **Tipo de software**     | Externo |
-| **Nombre del software**  | MSeller |
-| **Versión del software** | 1.0     |
+Puedes seguir este video tutorial que muestra el proceso completo de certificación paso a paso:
 
-## URLs de integración
+<div style={{ position: 'relative', paddingBottom: '56.25%', height: 0, overflow: 'hidden', maxWidth: '100%', borderRadius: '8px', marginBottom: '1.5rem' }}>
+  <iframe
+    src="https://www.youtube.com/embed/Y7uITwsA-LE"
+    title="Tutorial: Proceso de certificación DGII con MSeller ECF"
+    style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', border: 0 }}
+    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+    allowFullScreen
+  />
+</div>
 
-Las URLs que debes configurar en el formulario de certificación son:
+---
 
-| Campo                           | URL                                   |
-| ------------------------------- | ------------------------------------- |
-| **URL de recepción**            | `https://ecf.api.mseller.app/CerteCF` |
-| **URL de aprobación comercial** | `https://ecf.api.mseller.app/CerteCF` |
-| **URL de autenticación**        | _(Dejar en blanco)_                   |
+## Paso 1 — Cargar certificado digital
 
-> **Nota**: La URL de autenticación se deja en blanco porque MSeller ECF maneja la autenticación internamente a través de su propia API.
+Sube tu archivo **`.p12`** (certificado digital) a la plataforma MSeller ECF. Este certificado se utiliza para firmar electrónicamente todos los documentos e-CF en el entorno de certificación (CerteCF).
 
-## Datos del proveedor
+1. Accede a [ecf.mseller.app](https://ecf.mseller.app) e inicia sesión.
+2. En el asistente de certificación, sube tu archivo `.p12` e ingresa la contraseña del certificado.
+3. Una vez cargado, verás un mensaje indicando el **RNC** asociado y la **fecha de expiración** del certificado.
 
-Los datos del proveedor que debes ingresar en el formulario de certificación son:
+> **Nota**: Si ya tienes un certificado cargado, puedes continuar o reemplazarlo si es necesario.
 
-| Campo                   | Valor       |
-| ----------------------- | ----------- |
-| **RNC/Cédula**          | 130862346   |
-| **Nombre/Razón social** | ITSoluclick |
-| **Nombre comercial**    | MSeller     |
+---
 
-## Pasos para completar la certificación
+## Paso 2 — Crear API Key para CerteCF
 
-1. Accede al portal de la DGII para el proceso de certificación de e-CF
-2. Completa el formulario con los **datos del software** indicados arriba
-3. Ingresa las **URLs de integración** tal como se especifican
-4. Rellena los **datos del proveedor** con la información proporcionada
-5. Haz clic en **"Generar Archivo"** para generar el archivo de configuración
-6. Asegúrate de tener una API Key creada para el entorno **CerteCF** en [https://ecf.mseller.app/api-keys/list](https://ecf.mseller.app/api-keys/list)
+Genera una API Key para el entorno **CerteCF**. Esta clave se almacena de forma segura en una cookie `httpOnly` y se inyecta automáticamente al enviar los documentos de prueba — no se almacena en el navegador.
 
-> **Importante**: Antes de iniciar el proceso de certificación, asegúrate de haber completado las pruebas en el entorno **TesteCF** satisfactoriamente.
+1. Ingresa una descripción (por ejemplo: `CerteCF - certificación DGII`).
+2. Haz clic en **Crear API Key CerteCF**.
+3. **Copia la API Key** inmediatamente si la necesitas para otra herramienta — no se volverá a mostrar.
 
-> **Firma del archivo**: Una vez generado el archivo, debes descargarlo y aplicarle la firma utilizando la herramienta de la DGII para Windows, usando tu certificado digital y contraseña: [Herramientas recomendadas DGII](https://dgii.gov.do/cicloContribuyente/facturacion/comprobantesFiscalesElectronicosE-CF/Paginas/herramientasRecomendadas.aspx). Luego, sube el archivo firmado al portal correspondiente.
+> **Importante**: Si necesitas regenerar la API Key, puedes hacerlo desde este mismo paso seleccionando **Generar otra**.
 
-> **Siguiente paso**: Una vez completada la información, infórmanos a [hello@mseller.com](mailto:hello@mseller.com), por el [grupo de Discord](https://discord.gg/7xnNByfWTG) o por WhatsApp para aceptar la solicitud.
+---
+
+## Paso 3 — Crear postulación en el portal DGII
+
+Registra tus datos y las URLs de integración en el [portal de certificación DGII](https://ecf.dgii.gov.do/certecf/portalcertificacion).
+
+### 3.1 — Crear la postulación
+
+1. En el portal DGII, dentro de la columna **Certificación** → sección **Emisor Electrónico**, haz clic en **CREAR POSTULACIÓN**.
+2. Selecciona **Representantes asociados** para continuar.
+
+![Crear postulación en el portal DGII](/images/certification/postulacion.png)
+
+### 3.2 — Datos del software y del proveedor
+
+Completa el formulario con los siguientes datos:
+
+#### Datos del software
+
+| Campo                           | Valor                                   |
+| ------------------------------- | --------------------------------------- |
+| **Tipo de software**            | EXTERNO                                 |
+| **Nombre del software**         | MSeller                                 |
+| **Versión del software**        | 1.0                                     |
+| **URL de recepción**            | `https://ecf.api.mseller.app/CerteCF`  |
+| **URL de aprobación comercial** | `https://ecf.api.mseller.app/CerteCF`  |
+| **URL de autenticación**        | _(Dejar en blanco)_                     |
+
+> **Importante**: La **URL de autenticación** debe quedar en blanco. MSeller ECF maneja la autenticación internamente a través de su propia API.
+
+#### Datos del proveedor
+
+| Campo                   | Valor            |
+| ----------------------- | ---------------- |
+| **RNC / Cédula**        | 130862346        |
+| **Nombre/Razón social** | IT SOLUCLICK SRL |
+| **Nombre comercial**    | IT SOLUCLICK     |
+
+![Datos del software y del proveedor en el portal DGII](/images/certification/datos-del-proveedor.png)
+
+### 3.3 — Generar, firmar y subir el archivo de postulación
+
+1. En el portal DGII, haz clic en **GENERAR ARCHIVO**. Se descargará un XML de postulación _sin firmar_.
+2. **Firma el XML** con tu certificado digital (el mismo `.p12` que subiste en el paso 1). MSeller ECF incluye una herramienta de firma integrada — sube el XML sin firmar y se descargará firmado automáticamente.
+3. Regresa al portal DGII, en la sección **Envío de archivo de postulación firmado**, sube el XML firmado y haz clic en **ENVIAR ARCHIVO**.
+
+![Envío de archivo de postulación firmado](/images/certification/cargar-postulacion.png)
+
+4. Marca la casilla de confirmación en el asistente para registrar que completaste la postulación.
+
+---
+
+## Paso 4 — Solicitar aprobación a MSeller
+
+Envía un correo electrónico al equipo de MSeller para validar tu postulación.
+
+1. Haz clic en **Escribir correo a MSeller** — se abrirá tu cliente de correo con los datos precargados.
+2. El correo se enviará a: **hello@mseller.app**
+3. El asunto y cuerpo del correo se generan automáticamente con tus datos de postulación, incluyendo RNC, razón social y las URLs configuradas.
+
+> **Alternativa**: También puedes contactarnos por el [grupo de Discord](https://discord.gg/7xnNByfWTG) o por WhatsApp.
+
+---
+
+## Paso 5 — Pruebas de simulación e-CF
+
+Una vez aprobada tu postulación, debes enviar un documento de prueba por cada tipo de e-CF requerido por la DGII. El backend de MSeller firma y envía cada documento al entorno CerteCF de DGII automáticamente.
+
+### Tipos de documentos requeridos
+
+| Tipo   | Descripción                                    |
+| ------ | ---------------------------------------------- |
+| **31** | Factura de Crédito Fiscal                      |
+| **32** | Factura de Consumo (< 250K)                    |
+| **32** | Factura de Consumo (≥ 250K)                    |
+| **33** | Nota de Débito                                 |
+| **34** | Nota de Crédito                                |
+| **41** | Compras                                        |
+| **43** | Gastos Menores                                 |
+| **44** | Regímenes Especiales                           |
+| **45** | Gubernamental                                  |
+| **46** | Exportaciones                                  |
+| **47** | Pagos al Exterior                              |
+
+### Proceso de envío
+
+- Puedes enviar los documentos **uno por uno** o hacer clic en **Enviar todos automáticamente** para que el sistema los procese secuencialmente con un intervalo de 1.5 segundos entre cada envío.
+- Los tipos 33 (Nota de Débito) y 34 (Nota de Crédito) requieren que se envíe primero el **Tipo 32 (< 250K)**, ya que lo referencian como documento modificado.
+- El sistema usa fixtures predefinidos con tus datos (RNC, razón social) que se inyectan automáticamente al momento del envío.
+
+> **Nota**: Una vez enviados todos los documentos, descarga el XML de la **Factura de Consumo < 250K** y súbelo al portal DGII en la sección correspondiente.
+
+---
+
+## Paso 6 — Descargar PDFs y subirlos al portal DGII
+
+Descarga la representación impresa (PDF) de cada documento enviado y súbela manualmente al portal DGII.
+
+1. Haz clic en **Descargar todos** para obtener todos los PDFs de una vez, o descárgalos individualmente.
+2. Para cada PDF descargado, **súbelo manualmente** en el paso correspondiente del portal de certificación DGII.
+3. Marca la casilla **Subido al portal DGII** para cada documento que hayas cargado.
+
+> **Importante**: Este paso no avanza hasta que confirmes la carga de todos los PDFs marcando cada casilla.
+
+---
+
+## Paso 7 — Esperar aprobación de representación impresa
+
+Una vez entregados los PDFs, el equipo de DGII revisa la representación impresa de tus documentos. Este paso requiere esperar la notificación de aprobación por parte de DGII.
+
+- Si no recibes respuesta en los plazos esperados, puedes escribir a **hello@mseller.app** para darle seguimiento.
+- Marca la casilla de confirmación cuando DGII apruebe la representación impresa.
+
+---
+
+## Paso 8 — Configurar URLs de producción
+
+Una vez aprobada la certificación, actualiza las URLs de integración en el portal DGII al entorno de **producción** (`eCF`):
+
+| Campo                           | URL                                 |
+| ------------------------------- | ----------------------------------- |
+| **URL de recepción**            | `https://ecf.api.mseller.app/eCF`  |
+| **URL de aprobación comercial** | `https://ecf.api.mseller.app/eCF`  |
+| **URL de autenticación**        | _(Dejar en blanco)_                 |
+
+> **No registrar autenticación.** Deja la URL de autenticación en blanco en el portal DGII.
+
+Haz clic en **Confirmar URLs** en el portal DGII para guardar los cambios.
+
+---
+
+## Paso 9 — Realizar declaración jurada
+
+1. En el [portal de certificación DGII](https://ecf.dgii.gov.do/certecf/portalcertificacion), dirígete al **paso número 13** y haz clic en **Generar archivo** para descargar la declaración jurada.
+
+![Generar archivo de declaración jurada en el portal DGII](/images/certification/declaracion-jurada.png)
+
+2. **Firma el XML** de la declaración jurada con tu certificado digital usando la herramienta de firma integrada en MSeller ECF.
+3. Regresa al portal DGII, carga el XML firmado y haz clic en **Enviar Archivo** para completar la declaración jurada.
+
+![Cargar declaración jurada firmada en el portal DGII](/images/certification/cargar-declaracion-jurada.png)
+
+---
+
+## Paso 10 — Asignación de roles
+
+Para finalizar el proceso, asigna roles al **Representante Legal** desde tu **Oficina Virtual (OFV)** una vez que la DGII notifique la finalización del proceso de habilitación de facturación electrónica.
+
+1. Confirma la asignación del rol principal del Representante Legal.
+2. Haz clic en **Finalizar**.
+
+📄 [Ver instructivo DGII paso a paso para la delegación de roles](https://dgii.gov.do/cicloContribuyente/facturacion/comprobantesFiscalesElectronicosE-CF/Documentacin%20sobre%20eCF/Instructivos%20sobre%20Facturaci%C3%B3n%20Electr%C3%B3nica/Instructivo%20Delegaciones%20de%20Roles%20de%20Facturaci%C3%B3n%20Electr%C3%B3nica.pdf)
+
+> **¡Felicidades!** Con la asignación de roles concluye el proceso de certificación CerteCF. Tu empresa está lista para emitir comprobantes fiscales electrónicos en producción.
+
+---
+
+## Asistente interactivo
+
+MSeller ECF incluye un **asistente de certificación interactivo** accesible desde el panel de administración en [ecf.mseller.app](https://ecf.mseller.app). El asistente:
+
+- Guía cada paso con formularios precargados y campos copiables con un clic.
+- Firma XMLs directamente desde el navegador sin necesidad de herramientas externas.
+- Envía los documentos de prueba automáticamente al entorno CerteCF.
+- Genera PDFs de representación impresa para descargar.
+- Persiste el progreso en `localStorage` para que puedas retomar en cualquier momento.
+- Permite reiniciar el progreso completo si es necesario.
+
+## ¿Necesitas ayuda?
+
+Si tienes preguntas o problemas durante el proceso de certificación:
+
+- 📧 Escribe a [hello@mseller.app](mailto:hello@mseller.app)
+- 💬 Únete a nuestro [grupo de Discord](https://discord.gg/7xnNByfWTG)
+- 📱 Contáctanos por WhatsApp
