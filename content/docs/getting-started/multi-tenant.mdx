@@ -1,0 +1,57 @@
+---
+title: Multi-tenant (Múltiples Clientes)
+description: Cómo integrar MSeller ECF con una aplicación multi-tenant que maneja múltiples clientes o empresas
+---
+
+# Multi-tenant (Múltiples Clientes)
+
+¿Tu aplicación maneja múltiples clientes o empresas (multi-tenant)? **Sí, MSeller ECF puede manejar múltiples clientes o multi-tenants para tu aplicación.**
+
+El modelo se basa en una **cuenta principal (Proveedor)** que agrupa las cuentas de todos tus clientes, donde cada cliente mantiene su propia cuenta completamente aislada.
+
+## Cómo funciona
+
+- Tu empresa crea una **cuenta principal** de tipo **Proveedor** que sirve para agrupar a tus clientes.
+- Cada cliente tiene **su propia cuenta**, vinculada a tu cuenta principal.
+- Desde tu cuenta principal puedes ver la cantidad de documentos que emite cada cliente mensualmente.
+
+## Pasos para configurarlo
+
+### 1. Crear la cuenta principal de tu empresa (Proveedor)
+
+1. Visita [https://ecf.mseller.app/register](https://ecf.mseller.app/register) y crea una nueva cuenta para tu empresa.
+2. En el **paso 3** del registro, selecciona el tipo **Proveedor**.
+3. Utiliza tu cédula, RNC o pasaporte.
+
+> **Nota**: Si tu empresa no está registrada en la DGII, no importa. Esta cuenta se utilizará para agrupar a tus clientes, incluso si tu empresa no va a emitir e-CF.
+
+### 2. Crear una cuenta para cada cliente
+
+Para cada uno de tus clientes, crea una cuenta siguiendo el mismo proceso de registro, con una diferencia clave:
+
+1. Visita [https://ecf.mseller.app/register](https://ecf.mseller.app/register) y crea una cuenta para el cliente.
+2. En el **paso 3** del registro, selecciona la opción **esta cuenta es para mi cliente**.
+3. Ingresa tu RNC, cédula o pasaporte (el de tu empresa proveedora).
+
+De esta forma, la cuenta del cliente quedará vinculada bajo tu cuenta principal y podrás ver la cantidad de documentos que emite mensualmente.
+
+### 3. Configurar cada cliente de forma independiente
+
+Cada cliente debe tener:
+
+- **Su propia cuenta**
+- **Su propia API Key** (ver [Registro e Inicio](/docs/getting-started/registration#3-crear-una-api-key))
+- **Su propio certificado digital**
+
+Esto permite que cada cuenta esté **completamente aislada** de las demás, con su propia identidad y seguridad, evitando mezclar información entre clientes y reduciendo la posibilidad de errores.
+
+## Beneficios de este modelo
+
+- **Aislamiento total**: los datos, documentos y credenciales de cada cliente están separados.
+- **Seguridad**: cada cliente firma con su propio certificado digital y se autentica con su propia API Key.
+- **Visibilidad**: desde tu cuenta principal puedes monitorear el volumen de documentos emitidos mensualmente por cada cliente.
+- **Escalabilidad**: agrega nuevos clientes repitiendo el mismo proceso de registro.
+
+## Siguiente paso
+
+Una vez creadas las cuentas de tus clientes, continúa con la [integración técnica](/docs/integration/overview) usando la API Key de cada cliente.
