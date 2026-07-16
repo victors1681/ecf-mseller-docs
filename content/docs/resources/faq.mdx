@@ -29,6 +29,10 @@ Necesitas un sistema capaz de generar documentos XML según las especificaciones
 
 Sí, la plataforma está diseñada para ser integrada con cualquier sistema existente, ya sea un ERP comercial, un software a medida o una aplicación web.
 
+### ¿MSeller ECF soporta aplicaciones multi-tenant (múltiples clientes)?
+
+Sí, MSeller ECF puede manejar múltiples clientes o multi-tenants para tu aplicación. Crea una cuenta principal de tipo **Proveedor** para tu empresa (que agrupa a tus clientes, incluso si no vas a emitir e-CF) y luego una cuenta para cada cliente seleccionando **esta cuenta es para mi cliente** en el paso 3 del registro. Cada cliente debe tener su propia cuenta, sus propias credenciales (email/password), su propia API Key y su propio certificado digital, completamente aislados entre sí. Consulta la guía completa en [Multi-tenant (Múltiples Clientes)](/docs/getting-started/multi-tenant).
+
 ### ¿Qué pasa si mi sistema ya genera facturas en otro formato?
 
 Solo necesitarás implementar la transformación de tu formato actual al formato XML requerido por la DGII. Nuestra plataforma se encarga del resto del proceso.
