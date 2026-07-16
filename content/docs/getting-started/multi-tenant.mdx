@@ -46,6 +46,17 @@ Cada cliente debe tener:
 
 Esto permite que cada cuenta esté **completamente aislada** de las demás, con su propia identidad y seguridad, evitando mezclar información entre clientes y reduciendo la posibilidad de errores.
 
+## Recomendación: habilitar eCF para tus clientes desde tu ERP
+
+Para permitir que tus clientes habiliten eCF en tu ERP, se recomienda crear un formulario para recopilar la información necesaria. Este proceso actualmente es difícil de automatizar y requiere intervención manual. Lo que estamos haciendo:
+
+1. **Formulario de solicitud**: permite que el cliente llene un formulario para solicitar la habilitación de eCF.
+2. **Guiar al cliente en el proceso de certificación**:
+   - Guía al cliente para obtener su certificado digital, comprándolo en la [Cámara de Comercio de Santo Domingo](https://digi.camarasantodomingo.do/).
+   - Luego sigue los pasos para certificar al cliente y solicitar a la DGII convertirse en **emisor electrónico**.
+   - Después puedes certificar a tu cliente usando MSeller siguiendo [este video](https://youtu.be/Y7uITwsA-LE); te tomará unos 10 minutos.
+3. **Configuración por tenant**: en tu aplicación, permite que cada tenant configure su **entorno** (TesteCF, CerteCF o eCF), su **email/password** y su **API Key**.
+
 ## Beneficios de este modelo
 
 - **Aislamiento total**: los datos, documentos y credenciales de cada cliente están separados.
