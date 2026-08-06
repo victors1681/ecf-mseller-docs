@@ -1,10 +1,11 @@
 {
-    "title": "DOcumentación MSeller ECF",
+    "title": "Documentación MSeller ECF",
     "pages": [
         "---Documentación---",
         "index.mdx",
         "getting-started/registration",
         "getting-started/multi-tenant",
+        "getting-started/planes",
         "integration",
         "certification",
         "resources"

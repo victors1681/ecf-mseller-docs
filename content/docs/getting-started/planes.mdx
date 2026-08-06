@@ -1,0 +1,79 @@
+---
+title: Planes y Modelo Comercial
+description: Diferencias entre Developer/Community y Partner Comercial, planes técnicos y cómo se cuenta el consumo
+---
+
+# Planes y Modelo Comercial
+
+MSeller ECF ofrece **dos productos distintos**. No son niveles del mismo servicio: responden a dos tipos de relación diferentes. Elegir el correcto evita confusiones sobre soporte, responsabilidad y facturación.
+
+- **Developer / Community** — para desarrolladores que integran la facturación electrónica de forma **autogestionada (self-serve)**. El desarrollador da soporte a su propio cliente final.
+- **Partner Comercial** — para aliados con **contrato firmado** que requieren SLA, soporte dedicado y co-branding.
+
+## Comparación de productos
+
+| Aspecto | Developer / Community | Partner Comercial |
+| --- | --- | --- |
+| **Modelo de acceso** | Self-serve, sin contrato | Requiere firma de contrato |
+| **Requisitos** | Registro en la plataforma | Contrato + garantía de clientes de pago |
+| **SLA** | Sin SLA contractual (best-effort) | SLA contractual con tiempos de respuesta |
+| **Soporte** | Comunidad (Discord), best-effort | L2 dedicado y canal directo |
+| **Soporte a cliente final** | Lo asume el desarrollador | Responsabilidad definida en contrato |
+| **Escalamiento crítico** | No | Sí |
+| **Co-branding** | No | Sí |
+| **Planes disponibles** | Gratis y Estándar | Empresarial |
+| **Descuento** | 50% en plan Estándar | Por volumen de tenants (25%–40%) |
+
+## Planes técnicos
+
+Todos los planes se miden en **requests por mes** y tienen límites de velocidad (rate limit) asociados:
+
+| Plan | Requests/mes | Rate (req/s) | Burst | Producto |
+| --- | ---: | ---: | ---: | --- |
+| **Gratis** | 1,000 | 5 | 10 | Developer / Community |
+| **Estándar** | 20,000 | 50 | 100 | Developer / Community |
+| **Empresarial** | 100,000 | 200 | 400 | Partner Comercial |
+
+El plan **Gratis** es **gratuito de forma indefinida** para clientes dentro del límite de 1,000 requests/mes. El plan **Estándar** cuenta con **50% de descuento** sobre el precio de lista para clientes Developer/Community.
+
+## ¿Cómo se cuenta el consumo?
+
+El consumo se mide **por request** (cada llamada al API), **no por comprobante emitido**.
+
+> **Importante**: Las **consultas de estado del NCF también consumen un request**. Emitir un e-CF y luego consultar su estado son **dos requests**, no uno.
+
+### Equivalencia práctica
+
+Con **1,000 requests/mes** y un manejo cauteloso (sin llamadas innecesarias), puedes emitir del orden de **~250 comprobantes/mes**, ya que cada comprobante suele consumir entre **3 y 4 requests** entre la emisión y las consultas de estado.
+
+### Cómo aprovechar tu cuota
+
+Para no desperdiciar requests:
+
+- **Cachea y reutiliza el token de acceso** en lugar de re-autenticarte en cada llamada.
+- **No hagas polling agresivo** del estado: consulta solo tras un intervalo razonable y **detente al llegar a un estado final** (aceptado/rechazado).
+- **Usa reintentos con backoff** (no en bucle inmediato) ante fallos temporales.
+- **Consulta el estado por lote** cuando sea posible, en vez de una llamada por documento.
+
+Consulta las [Mejores Prácticas](/docs/resources/best-practices) y la [Consulta de Documentos](/docs/integration/document-queries) para más detalle.
+
+## Descuentos de Partner Comercial
+
+Los Partners Comerciales reciben un descuento escalonado según la cantidad de **tenants** (clientes/emisores finales gestionados):
+
+| Tenants | Descuento |
+| --- | ---: |
+| 1 – 10 | 25% |
+| 11 – 30 | 30% |
+| 31 – 75 | 35% |
+| 76+ | 40% |
+
+## ¿Cuál elijo?
+
+<Cards>
+  <Card title="Soy desarrollador (self-serve)" href="/docs/getting-started/registration" />
+  <Card title="Quiero ser Partner Comercial" href="https://ecf.mseller.app/support" />
+</Cards>
+
+- Empieza como **Developer / Community**: regístrate, crea tu API Key y usa el plan Gratis (1,000 requests/mes). Cuando tu cliente crezca, pasa al plan Estándar con 50% de descuento.
+- Si necesitas **SLA, co-branding y soporte dedicado** bajo contrato, contacta a nuestro equipo para el programa **Partner Comercial**.
