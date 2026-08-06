@@ -4,6 +4,7 @@
         "---Documentación---",
         "index.mdx",
         "getting-started/registration",
+        "getting-started/multi-tenant",
         "getting-started/planes",
         "integration",
         "certification",
