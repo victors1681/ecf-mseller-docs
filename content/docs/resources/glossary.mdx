@@ -25,7 +25,7 @@ description: Términos y definiciones comunes relacionados con la facturación e
 
 ## E
 
-**e-CF**: Comprobante Fiscal Electrónico, documento digital que sustituye las facturas tradicionales en papel, con el mismo valor legal.
+**e-CF**: Comprobante Fiscal Electrónico, documento digital que sustituye las facturas tradicionales en papel, con el mismo valor legal. El consumo del API **no se factura por comprobante emitido**, sino por [request](#r).
 
 **eCF**: Entorno de producción en la plataforma MSeller ECF, utilizado para la emisión de facturas electrónicas oficiales.
 
@@ -49,9 +49,13 @@ description: Términos y definiciones comunes relacionados con la facturación e
 
 **Receptor Electrónico**: Contribuyente que recibe comprobantes fiscales electrónicos y puede validarlos digitalmente.
 
+**Request**: Cada llamada al API de MSeller ECF. Es la **unidad de consumo** que se contabiliza contra la cuota de tu plan. Las **consultas de estado del NCF también cuentan como request**; por eso el consumo no equivale al número de comprobantes emitidos.
+
 **RNC (Registro Nacional del Contribuyente)**: Número de identificación fiscal asignado por la DGII a personas jurídicas y negocios de único dueño en República Dominicana.
 
 ## T
+
+**Tenant**: Cada cliente o emisor final gestionado por un Partner Comercial. El número de tenants determina el descuento por volumen del Partner.
 
 **TesteCF**: Entorno de pruebas en la plataforma MSeller ECF, utilizado durante el desarrollo e integración inicial.
 
