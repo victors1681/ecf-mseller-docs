@@ -6,7 +6,8 @@
         "document-format",
         "formato-documentos-ecf",
         "documents",
-        "document-queries"
+        "document-queries",
+        "anulacion-ncf"
     ],
     "defaultOpen": true
 }
