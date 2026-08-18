@@ -344,9 +344,15 @@ RNC del token.
 > - Si sigue en `Error`, verifique el estado real de las secuencias en la DGII
 >   antes de enviar una nueva solicitud.
 >
-> Si la solicitud falló **antes** de recibir un `voidId` (por ejemplo un error
-> de validación `400` o de autenticación `401`), no se envió nada a la DGII y
-> puede corregir y reenviar sin riesgo.
+> Si recibió una respuesta `400` de validación o `401` de autenticación, la
+> solicitud se rechazó antes de construir el documento: no se envió nada a la
+> DGII y puede corregir y reenviar sin riesgo.
+>
+> **No asuma lo mismo cuando no hubo respuesta HTTP.** Un timeout o una
+> conexión cortada puede ocurrir después de que la anulación se envió a la
+> DGII, aunque usted nunca haya recibido el `voidId`. En ese caso consulte el
+> historial (`GET /{entorno}/customer/void-ncf`) y verifique el estado de las
+> secuencias antes de enviar otra solicitud.
 
 ## Ejemplos completos
 
