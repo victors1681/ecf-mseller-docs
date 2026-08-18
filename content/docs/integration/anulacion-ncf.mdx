@@ -1,0 +1,462 @@
+---
+title: Anulación de e-NCF
+description: Anular rangos de secuencias de e-NCF no utilizadas ante la DGII desde MSeller ECF
+---
+
+# Anulación de e-NCF
+
+Cuando una empresa deja de utilizar secuencias de e-NCF que la DGII le autorizó
+—porque cambió de sistema, porque se saltaron secuencias, o porque un rango
+quedó reservado y nunca se emitió— debe **anularlas** para que no queden
+pendientes de reporte.
+
+MSeller ECF expone un endpoint que recibe los rangos en **JSON**, construye el
+documento de anulación (**ANECF**) según el formato de la DGII, lo firma con el
+certificado digital de la cuenta y lo envía al servicio de anulación de rangos.
+También existe una herramienta en el portal (**Herramientas → Anular e-NCF**)
+que hace exactamente lo mismo sin escribir código.
+
+> **⚠️ IMPORTANTE**: La anulación es **irreversible**. Una vez que la DGII
+> acepta el documento, esas secuencias no pueden volver a emitirse. Anule
+> únicamente secuencias que **no hayan sido utilizadas**.
+
+## Endpoint
+
+```
+POST /{entorno}/customer/void-ncf
+```
+
+Donde `{entorno}` puede ser:
+
+- `TesteCF` (para pruebas)
+- `CerteCF` (para certificación)
+- `eCF` (para producción)
+
+### Encabezados requeridos
+
+```
+Authorization: Bearer {tu_idToken}
+Content-Type: application/json
+```
+
+Este endpoint **no requiere API Key**: se autentica con el `idToken` obtenido en
+[Autenticación API](/docs/integration/authentication).
+
+### Requisitos previos
+
+- Tener un **certificado digital (.p12) activo** cargado en la plataforma. El
+  RNC emisor se toma del token, nunca del cuerpo de la solicitud.
+- Que las secuencias pertenezcan a rangos autorizados al RNC que hace la
+  solicitud.
+
+## Cuerpo de la solicitud
+
+```json
+{
+  "ranges": [
+    { "secuenciaDesde": "E310000000001", "secuenciaHasta": "E310000000010" },
+    { "secuenciaDesde": "E310000000020", "secuenciaHasta": "E310000000020" },
+    { "secuenciaDesde": "E320000000001", "secuenciaHasta": "E320000000005" }
+  ]
+}
+```
+
+| Campo                     | Tipo   | Requerido | Descripción                                                                                                |
+| ------------------------- | ------ | --------- | ---------------------------------------------------------------------------------------------------------- |
+| `ranges`                  | array  | Sí        | Lista de rangos a anular. Debe contener al menos un elemento.                                               |
+| `ranges[].secuenciaDesde` | string | Sí        | e-NCF que inicia el rango (13 posiciones). Ej.: `E310000000001`.                                            |
+| `ranges[].secuenciaHasta` | string | Sí        | e-NCF que cierra el rango. Misma serie y tipo que `secuenciaDesde`, y mayor o igual que este.               |
+| `ranges[].tipoeCF`        | string | No        | Verificación opcional. Si se envía, debe coincidir con el tipo codificado dentro del propio e-NCF.          |
+| `fechaHoraAnulacion`      | string | No        | Formato `dd-MM-aaaa HH:mm:ss`. Si se omite, se usa la hora actual de República Dominicana.                  |
+
+Para anular **una sola secuencia**, envíe el mismo e-NCF en `secuenciaDesde` y
+`secuenciaHasta`.
+
+El **RNC emisor**, los **números de línea**, la **cantidad por tipo** y el
+**total del encabezado** los calcula MSeller ECF; no se envían en la solicitud.
+
+### Agrupación por tipo de e-CF
+
+Los rangos se agrupan automáticamente por tipo de comprobante: todos los rangos
+de un mismo tipo terminan dentro de un solo bloque `<Anulacion>`. La DGII acepta
+hasta **10 bloques** (uno por cada tipo de e-CF) y hasta **10,000 rangos** por
+bloque.
+
+Tipos de e-CF admitidos:
+
+| Tipo | Comprobante                     | Tipo | Comprobante                          |
+| ---- | ------------------------------- | ---- | ------------------------------------ |
+| 31   | Factura de Crédito Fiscal       | 43   | Gastos Menores                       |
+| 32   | Factura de Consumo              | 44   | Regímenes Especiales                 |
+| 33   | Nota de Débito                  | 45   | Gubernamental                        |
+| 34   | Nota de Crédito                 | 46   | Comprobante para Exportaciones       |
+| 41   | Compras                         | 47   | Comprobante para Pagos al Exterior   |
+
+## XML generado (ANECF)
+
+El JSON del ejemplo anterior produce el siguiente documento, que MSeller ECF
+firma antes de enviarlo a la DGII:
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<ANECF>
+  <Encabezado>
+    <Version>1.0</Version>
+    <RncEmisor>130862346</RncEmisor>
+    <CantidadeNCFAnulados>16</CantidadeNCFAnulados>
+    <FechaHoraAnulacioneNCF>18-08-2026 10:15:00</FechaHoraAnulacioneNCF>
+  </Encabezado>
+  <DetalleAnulacion>
+    <Anulacion>
+      <NoLinea>1</NoLinea>
+      <TipoeCF>31</TipoeCF>
+      <TablaRangoSecuenciasAnuladaseNCF>
+        <Secuencias>
+          <SecuenciaeNCFDesde>E310000000001</SecuenciaeNCFDesde>
+          <SecuenciaeNCFHasta>E310000000010</SecuenciaeNCFHasta>
+        </Secuencias>
+        <Secuencias>
+          <SecuenciaeNCFDesde>E310000000020</SecuenciaeNCFDesde>
+          <SecuenciaeNCFHasta>E310000000020</SecuenciaeNCFHasta>
+        </Secuencias>
+      </TablaRangoSecuenciasAnuladaseNCF>
+      <CantidadeNCFAnulados>11</CantidadeNCFAnulados>
+    </Anulacion>
+    <Anulacion>
+      <NoLinea>2</NoLinea>
+      <TipoeCF>32</TipoeCF>
+      <TablaRangoSecuenciasAnuladaseNCF>
+        <Secuencias>
+          <SecuenciaeNCFDesde>E320000000001</SecuenciaeNCFDesde>
+          <SecuenciaeNCFHasta>E320000000005</SecuenciaeNCFHasta>
+        </Secuencias>
+      </TablaRangoSecuenciasAnuladaseNCF>
+      <CantidadeNCFAnulados>5</CantidadeNCFAnulados>
+    </Anulacion>
+  </DetalleAnulacion>
+  <Signature>...</Signature>
+</ANECF>
+```
+
+### Estructura del formato
+
+**Encabezado**
+
+| Campo                     | Descripción                                                                 | Tipo      | Largo     |
+| ------------------------- | --------------------------------------------------------------------------- | --------- | --------- |
+| `Version`                 | Versión del formato de anulación. Valor fijo `1.0`.                         | NUM       | 3         |
+| `RncEmisor`               | RNC del contribuyente que emite la anulación.                               | NUM       | 9 u 11    |
+| `CantidadeNCFAnulados`    | Sumatoria de e-NCF anulados en todo el detalle.                             | NUM       | 10        |
+| `FechaHoraAnulacioneNCF`  | Fecha y hora de generación, en formato `dd-MM-aaaa HH:mm:ss`.               | ALFANUM   | 19        |
+
+**Detalle de anulación** (bloque `Anulacion`, hasta 10 repeticiones)
+
+| Campo                                  | Descripción                                                              | Tipo      | Largo  |
+| -------------------------------------- | ------------------------------------------------------------------------ | --------- | ------ |
+| `NoLinea`                              | Número de línea del bloque, de 1 a 10.                                   | NUM       | 2      |
+| `TipoeCF`                              | Tipo de comprobante fiscal electrónico.                                  | NUM       | 2      |
+| `TablaRangoSecuenciasAnuladaseNCF`     | Tabla de rangos consecutivos. Hasta 10,000 repeticiones.                 | —         | —      |
+| `Secuencias.SecuenciaeNCFDesde`        | e-NCF que inicia el rango. Ej.: `E310000000001`.                         | ALFANUM   | 13     |
+| `Secuencias.SecuenciaeNCFHasta`        | e-NCF que cierra el rango. Misma serie y tipo, mayor o igual al inicial. | ALFANUM   | 13     |
+| `CantidadeNCFAnulados`                 | Cantidad de secuencias anuladas en el bloque.                            | NUM       | 10     |
+
+**Firma digital** — el bloque `<Signature>` se genera automáticamente con el
+certificado de la cuenta.
+
+> **Nota**: La estructura del e-NCF es: una **serie** entre `E` y `Z` (se
+> exceptúa la `P`), el **tipo de comprobante** en 2 dígitos y el **secuencial**
+> en 10 dígitos. En total, 13 posiciones.
+
+## Respuestas
+
+### Anulación aceptada — `200`
+
+```json
+{
+  "message": "Rangos de e-NCF anulados correctamente.",
+  "voidId": "7c0a1d4e-2f6b-4a2c-9a51-8f2c9b3d1e42",
+  "status": "Aceptado",
+  "rnc": "130862346",
+  "fechaHoraAnulacion": "18-08-2026 10:15:00",
+  "totalVoided": 16,
+  "ranges": [
+    {
+      "tipoeCF": "31",
+      "secuenciaDesde": "E310000000001",
+      "secuenciaHasta": "E310000000010",
+      "cantidad": 10
+    },
+    {
+      "tipoeCF": "31",
+      "secuenciaDesde": "E310000000020",
+      "secuenciaHasta": "E310000000020",
+      "cantidad": 1
+    },
+    {
+      "tipoeCF": "32",
+      "secuenciaDesde": "E320000000001",
+      "secuenciaHasta": "E320000000005",
+      "cantidad": 5
+    }
+  ],
+  "fileName": "130862346-ANECF-7c0a1d4e-2f6b-4a2c-9a51-8f2c9b3d1e42.xml",
+  "dgiiResponse": {
+    "codigo": "1",
+    "nombre": "Aceptado",
+    "mensajes": []
+  }
+}
+```
+
+Guarde el `voidId`: es la referencia con la que puede consultar la anulación más
+adelante.
+
+### Anulación rechazada por la DGII — `422`
+
+La solicitud llegó a la DGII, pero fue rechazada. El motivo viene en
+`dgiiResponse.mensajes` y el intento queda registrado igualmente.
+
+```json
+{
+  "message": "La DGII rechazó la anulación.",
+  "voidId": "7c0a1d4e-2f6b-4a2c-9a51-8f2c9b3d1e42",
+  "status": "Rechazado",
+  "totalVoided": 16,
+  "dgiiResponse": {
+    "codigo": "2",
+    "nombre": "Rechazado",
+    "mensajes": ["La secuencia E310000000005 ya fue utilizada"]
+  }
+}
+```
+
+### Errores de validación — `400`
+
+Los rangos se validan **antes** de firmar y enviar nada, de modo que un error de
+captura nunca consume una llamada a la DGII.
+
+| `code`                | Causa                                                                            |
+| --------------------- | -------------------------------------------------------------------------------- |
+| `MISSING_RANGES`      | `ranges` ausente o vacío.                                                        |
+| `MISSING_SEQUENCE`    | Falta `secuenciaDesde` o `secuenciaHasta` en una línea.                          |
+| `INVALID_ENCF_LENGTH` | El e-NCF no tiene 13 posiciones.                                                 |
+| `INVALID_ENCF_FORMAT` | Serie fuera del rango `E`–`Z` (la serie `P` está reservada) o dígitos inválidos. |
+| `SERIE_MISMATCH`      | Los dos extremos del rango usan series distintas.                                |
+| `TIPO_MISMATCH`       | Los extremos son de tipos distintos, o `tipoeCF` contradice al e-NCF.            |
+| `INVALID_TIPO_ECF`    | El tipo no está entre 31, 32, 33, 34, 41, 43, 44, 45, 46 y 47.                   |
+| `INVALID_SEQUENCE`    | El secuencial es cero.                                                           |
+| `INVALID_RANGE_ORDER` | El e-NCF "hasta" es menor que el "desde".                                        |
+| `OVERLAPPING_RANGES`  | Dos líneas se solapan para la misma serie y tipo.                                |
+| `TOO_MANY_TIPOS`      | Más de 10 tipos de e-CF en una misma solicitud.                                  |
+| `TOO_MANY_RANGES`     | Más de 10,000 rangos para un mismo tipo.                                         |
+
+```json
+{
+  "message": "En la línea 2 el e-NCF \"hasta\" (E310000000001) debe ser mayor o igual que el e-NCF \"desde\" (E310000000010).",
+  "code": "INVALID_RANGE_ORDER"
+}
+```
+
+### Otros errores
+
+| Código HTTP | `code`                       | Significado                                                     |
+| ----------- | ---------------------------- | --------------------------------------------------------------- |
+| 400         | `EMPTY_BODY`, `INVALID_JSON` | El cuerpo está vacío o no es JSON válido.                       |
+| 401         | `UNAUTHORIZED`               | Token ausente, expirado o inválido.                             |
+| 412         | `CERTIFICATE_NOT_CONFIGURED` | No hay certificado activo. Cárguelo y vuelva a iniciar sesión.  |
+| 500         | `CERTIFICATE_UNAVAILABLE`    | El certificado no pudo cargarse.                                |
+| 500         | `SIGN_ERROR`                 | Falló la firma del documento de anulación.                      |
+| 502         | `DGII_AUTH_ERROR`            | No fue posible autenticar contra la DGII.                       |
+| 502         | `DGII_VOID_ERROR`            | El servicio de anulación de la DGII no respondió correctamente. |
+
+## Consulta de anulaciones
+
+Todas las anulaciones quedan registradas, tanto las aceptadas como las
+rechazadas y las que fallaron en tránsito.
+
+```
+GET /{entorno}/customer/void-ncf
+GET /{entorno}/customer/void-ncf?voidId={voidId}
+```
+
+| Parámetro   | Descripción                                                        |
+| ----------- | ------------------------------------------------------------------ |
+| `voidId`    | Devuelve una sola anulación (404 si no existe).                    |
+| `status`    | Filtra por `Aceptado`, `Rechazado` o `Error`.                      |
+| `fromDate`  | Fecha inicial en milisegundos epoch.                               |
+| `toDate`    | Fecha final en milisegundos epoch.                                 |
+| `limit`     | Entre 1 y 100. Por defecto 25.                                     |
+| `nextToken` | Cursor devuelto por la página anterior.                            |
+
+```json
+{
+  "items": [
+    {
+      "voidId": "7c0a1d4e-2f6b-4a2c-9a51-8f2c9b3d1e42",
+      "customerId": "130862346",
+      "createdAt": 1755518100000,
+      "updateAt": 1755518103000,
+      "status": "Aceptado",
+      "environment": "TesteCF",
+      "fechaHoraAnulacion": "18-08-2026 10:15:00",
+      "totalVoided": 16,
+      "ranges": [
+        {
+          "tipoeCF": "31",
+          "secuenciaDesde": "E310000000001",
+          "secuenciaHasta": "E310000000010",
+          "cantidad": 10
+        }
+      ],
+      "fileName": "130862346-ANECF-7c0a1d4e-2f6b-4a2c-9a51-8f2c9b3d1e42.xml",
+      "dgiiCode": "1",
+      "dgiiName": "Aceptado",
+      "dgiiResponse": []
+    }
+  ],
+  "nextToken": "eyJjdXN0b21lcklkIjoi...",
+  "metadata": { "itemsPerPage": 25 }
+}
+```
+
+Los resultados vienen del más reciente al más antiguo y siempre corresponden al
+RNC del token.
+
+### Estados
+
+| Estado      | Significado                                                                                    |
+| ----------- | ---------------------------------------------------------------------------------------------- |
+| `Aceptado`  | La DGII aceptó la anulación. Las secuencias ya no pueden emitirse.                             |
+| `Rechazado` | La DGII recibió el documento y lo rechazó. El motivo está en `dgiiResponse`.                   |
+| `Error`     | El documento no llegó a la DGII o la respuesta no pudo confirmarse. Se puede reintentar.       |
+
+## Ejemplos completos
+
+<Tabs items={["cURL", "JavaScript", "C#", "PHP"]}>
+<TabsContent value="cURL">
+
+```bash
+curl -X POST "https://ecf.api.mseller.app/TesteCF/customer/void-ncf" \
+  -H "Authorization: Bearer $ID_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "ranges": [
+      { "secuenciaDesde": "E310000000001", "secuenciaHasta": "E310000000010" },
+      { "secuenciaDesde": "E320000000001", "secuenciaHasta": "E320000000005" }
+    ]
+  }'
+```
+
+</TabsContent>
+<TabsContent value="JavaScript">
+
+```javascript
+const response = await fetch('https://ecf.api.mseller.app/TesteCF/customer/void-ncf', {
+  method: 'POST',
+  headers: {
+    Authorization: `Bearer ${idToken}`,
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
+    ranges: [
+      { secuenciaDesde: 'E310000000001', secuenciaHasta: 'E310000000010' },
+      { secuenciaDesde: 'E320000000001', secuenciaHasta: 'E320000000005' }
+    ]
+  })
+})
+
+const result = await response.json()
+
+if (result.status === 'Aceptado') {
+  console.log(`Se anularon ${result.totalVoided} secuencias. Referencia: ${result.voidId}`)
+} else {
+  console.error('La DGII no aceptó la anulación:', result.dgiiResponse?.mensajes)
+}
+```
+
+</TabsContent>
+<TabsContent value="C#">
+
+```csharp
+using var client = new HttpClient();
+client.DefaultRequestHeaders.Authorization =
+    new AuthenticationHeaderValue("Bearer", idToken);
+
+var payload = new
+{
+    ranges = new[]
+    {
+        new { secuenciaDesde = "E310000000001", secuenciaHasta = "E310000000010" },
+        new { secuenciaDesde = "E320000000001", secuenciaHasta = "E320000000005" }
+    }
+};
+
+var content = new StringContent(
+    JsonSerializer.Serialize(payload), Encoding.UTF8, "application/json");
+
+var response = await client.PostAsync(
+    "https://ecf.api.mseller.app/TesteCF/customer/void-ncf", content);
+
+var body = await response.Content.ReadAsStringAsync();
+Console.WriteLine(body);
+```
+
+</TabsContent>
+<TabsContent value="PHP">
+
+```php
+$payload = [
+    'ranges' => [
+        ['secuenciaDesde' => 'E310000000001', 'secuenciaHasta' => 'E310000000010'],
+        ['secuenciaDesde' => 'E320000000001', 'secuenciaHasta' => 'E320000000005'],
+    ],
+];
+
+$ch = curl_init('https://ecf.api.mseller.app/TesteCF/customer/void-ncf');
+curl_setopt_array($ch, [
+    CURLOPT_POST => true,
+    CURLOPT_RETURNTRANSFER => true,
+    CURLOPT_HTTPHEADER => [
+        'Authorization: Bearer ' . $idToken,
+        'Content-Type: application/json',
+    ],
+    CURLOPT_POSTFIELDS => json_encode($payload),
+]);
+
+$response = curl_exec($ch);
+curl_close($ch);
+
+print_r(json_decode($response, true));
+```
+
+</TabsContent>
+</Tabs>
+
+## Herramienta del portal
+
+Si prefiere no integrar el endpoint, el portal incluye la herramienta
+**Herramientas → Anular e-NCF**:
+
+1. Seleccione el entorno (`TesteCF`, `CerteCF` o `eCF`).
+2. Capture los rangos línea por línea, o pegue varias líneas de una hoja de
+   cálculo con el botón **Pegar varias líneas** (un rango por línea, `desde` y
+   `hasta` separados por tabulación, coma o espacio).
+3. Revise el documento con **Ver XML** antes de enviarlo.
+4. Confirme la anulación. El resultado y el historial completo de anulaciones
+   quedan visibles en la misma pantalla.
+
+Cada línea se valida mientras se escribe: el tipo de e-CF y la cantidad de
+secuencias se derivan del propio e-NCF, y los rangos solapados se señalan antes
+de enviar.
+
+## Buenas prácticas
+
+- **Verifique antes de anular.** Consulte primero el estado de las secuencias
+  con [Consulta de Documentos](/docs/integration/document-queries); si una
+  secuencia ya se emitió, la DGII rechazará el bloque completo.
+- **Pruebe en `TesteCF`.** El flujo es idéntico al de producción y no consume
+  secuencias reales.
+- **Anule por rangos, no una a una.** Un rango de 500 secuencias es una sola
+  línea, y la DGII lo procesa mucho más rápido que 500 rangos individuales.
+- **Guarde el `voidId`** en su sistema junto con las secuencias afectadas; es la
+  evidencia de la anulación ante cualquier revisión.
